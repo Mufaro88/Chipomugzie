@@ -1,0 +1,239 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id            String   @id @default(cuid())
+  name          String
+  email         String   @unique
+  passwordHash  String
+  phone         String?
+  role          String   @default("owner") // platform_admin, owner, manager, viewer
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  ownedFarms    Farm[]          @relation("FarmOwner")
+  farmAccess    FarmAccess[]
+  auditLogs     AuditLog[]
+  monthlyCensus MonthlyCensus[]
+}
+
+model Farm {
+  id        String   @id @default(cuid())
+  name      String
+  location  String?
+  ownerId   String
+  tier      String   @default("free") // free, basic, pro
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  owner         User            @relation("FarmOwner", fields: [ownerId], references: [id])
+  farmAccess    FarmAccess[]
+  monthlyCensus MonthlyCensus[]
+  auditLogs     AuditLog[]
+}
+
+model FarmAccess {
+  id     String @id @default(cuid())
+  userId String
+  farmId String
+  role   String @default("viewer") // manager, viewer
+
+  user User @relation(fields: [userId], references: [id])
+  farm Farm @relation(fields: [farmId], references: [id])
+
+  @@unique([userId, farmId])
+}
+
+model MonthlyCensus {
+  id        String   @id @default(cuid())
+  farmId    String
+  userId    String
+  month     Int
+  year      Int
+  status    String   @default("draft") // draft, submitted, approved
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  farm             Farm              @relation(fields: [farmId], references: [id])
+  submittedBy      User              @relation(fields: [userId], references: [id])
+  beefSection      BeefSection?
+  dairySection     DairySection?
+  goatSection      GoatSection?
+  layerSection     LayerSection?
+  broilerSection   BroilerSection?
+  cropActivities   CropActivity[]
+  workshopItems    WorkshopItem[]
+
+  @@unique([farmId, month, year])
+}
+
+model BeefSection {
+  id             String @id @default(cuid())
+  censusId       String @unique
+  openingStock   Int    @default(0)
+  births         Int    @default(0)
+  movedIn        Int    @default(0)
+  movedOut       Int    @default(0)
+  sold           Int    @default(0)
+  slaughtered    Int    @default(0)
+  deaths         Int    @default(0)
+  closingStock   Int    @default(0)
+  // Animal classes
+  bulls          Int    @default(0)
+  juvenileBulls  Int    @default(0)
+  cows           Int    @default(0)
+  bullingHeifers Int    @default(0)
+  weanerHeifers  Int    @default(0)
+  feederSteers   Int    @default(0)
+  weanerSteers   Int    @default(0)
+  weanerMaleCalves Int  @default(0)
+  calfSteers     Int    @default(0)
+  maleCaves      Int    @default(0)
+  femaleCalves   Int    @default(0)
+  notes          String?
+
+  census MonthlyCensus @relation(fields: [censusId], references: [id], onDelete: Cascade)
+}
+
+model DairySection {
+  id             String @id @default(cuid())
+  censusId       String @unique
+  openingStock   Int    @default(0)
+  births         Int    @default(0)
+  movedIn        Int    @default(0)
+  movedOut       Int    @default(0)
+  sold           Int    @default(0)
+  slaughtered    Int    @default(0)
+  deaths         Int    @default(0)
+  closingStock   Int    @default(0)
+  // Animal classes
+  bulls          Int    @default(0)
+  juvenileBulls  Int    @default(0)
+  milkingCows    Int    @default(0)
+  dryCows        Int    @default(0)
+  bullingHeifers Int    @default(0)
+  weanerHeifers  Int    @default(0)
+  feederSteers   Int    @default(0)
+  weanerSteers   Int    @default(0)
+  weanerMaleCalves Int  @default(0)
+  calfSteers     Int    @default(0)
+  maleCalves     Int    @default(0)
+  femaleCalves   Int    @default(0)
+  // Dairy specific
+  totalMilkYield Float  @default(0)
+  feedConsumedBags Int   @default(0)
+  feedWeightKg   Float  @default(50)
+  notes          String?
+
+  census MonthlyCensus @relation(fields: [censusId], references: [id], onDelete: Cascade)
+}
+
+model GoatSection {
+  id              String @id @default(cuid())
+  censusId        String @unique
+  openingStock    Int    @default(0)
+  births          Int    @default(0)
+  movedIn         Int    @default(0)
+  sold            Int    @default(0)
+  slaughtered     Int    @default(0)
+  deaths          Int    @default(0)
+  movedOut        Int    @default(0)
+  closingStock    Int    @default(0)
+  // Animal classes
+  bucks           Int    @default(0)
+  juvenileBucks   Int    @default(0)
+  does            Int    @default(0)
+  maidenDoes      Int    @default(0)
+  castratedWeaners Int   @default(0)
+  castratedMaleKids Int  @default(0)
+  femaleKids      Int    @default(0)
+  maleKids        Int    @default(0)
+  notes           String?
+
+  census MonthlyCensus @relation(fields: [censusId], references: [id], onDelete: Cascade)
+}
+
+model LayerSection {
+  id              String @id @default(cuid())
+  censusId        String @unique
+  openingStock    Int    @default(0)
+  mortalities     Int    @default(0)
+  movedIn         Int    @default(0)
+  closingStock    Int    @default(0)
+  cratesCollected Int    @default(0)
+  eggTraysDelivered Int  @default(0)
+  breakagesCrates Int    @default(0)
+  binnedCrates    Int    @default(0)
+  averageLayingPct Float @default(0)
+  feedConsumedBags Int   @default(0)
+  feedWeightKg    Float  @default(50)
+  notes           String?
+
+  census MonthlyCensus @relation(fields: [censusId], references: [id], onDelete: Cascade)
+}
+
+model BroilerSection {
+  id              String @id @default(cuid())
+  censusId        String @unique
+  openingStock    Int    @default(0)
+  received        Int    @default(0)
+  sold            Int    @default(0)
+  deaths          Int    @default(0)
+  closingStock    Int    @default(0)
+  // Feed by type (bags)
+  starterBags     Int    @default(0)
+  growerBags      Int    @default(0)
+  finisherBags    Int    @default(0)
+  feedWeightKg    Float  @default(50)
+  notes           String?
+
+  census MonthlyCensus @relation(fields: [censusId], references: [id], onDelete: Cascade)
+}
+
+model CropActivity {
+  id          String @id @default(cuid())
+  censusId    String
+  cropName    String
+  category    String @default("field") // field, horticulture
+  hectares    Float?
+  activity    String
+  plantedDate String?
+  daysToMaturity Int?
+  notes       String?
+
+  census MonthlyCensus @relation(fields: [censusId], references: [id], onDelete: Cascade)
+}
+
+model WorkshopItem {
+  id          String @id @default(cuid())
+  censusId    String
+  category    String @default("equipment") // equipment, construction, other
+  description String
+  status      String @default("in_progress") // running, in_progress, completed, needs_repair
+  notes       String?
+
+  census MonthlyCensus @relation(fields: [censusId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  farmId      String
+  userId      String
+  action      String
+  entity      String
+  entityId    String
+  oldValues   String?
+  newValues   String?
+  reason      String?
+  createdAt   DateTime @default(now())
+
+  farm Farm @relation(fields: [farmId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+}
