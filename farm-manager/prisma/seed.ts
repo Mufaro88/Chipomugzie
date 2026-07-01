@@ -1,9 +1,10 @@
 import { PrismaClient } from "../src/generated/prisma/client.ts";
-import { PrismaLibSql } from "@prisma/adapter-libsql";
+import "dotenv/config";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { hash } from "bcryptjs";
 
 async function main() {
-  const adapter = new PrismaLibSql({ url: "file:prisma/dev.db" });
+  const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
   const prisma = new PrismaClient({ adapter });
 
   const passwordHash = await hash("demo1234", 12);
