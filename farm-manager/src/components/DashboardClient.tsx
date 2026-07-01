@@ -58,9 +58,9 @@ export function DashboardClient({
             <YAxis tick={{ fontSize: 12 }} />
             <Tooltip />
             <Legend />
-            <Line type="monotone" dataKey="beef" stroke="#d97706" name="Beef" strokeWidth={2} />
-            <Line type="monotone" dataKey="dairy" stroke="#3b82f6" name="Dairy" strokeWidth={2} />
-            <Line type="monotone" dataKey="goats" stroke="#ea580c" name="Goats" strokeWidth={2} />
+            <Line isAnimationActive={false} type="monotone" dataKey="beef" stroke="#d97706" name="Beef" strokeWidth={2} />
+            <Line isAnimationActive={false} type="monotone" dataKey="dairy" stroke="#3b82f6" name="Dairy" strokeWidth={2} />
+            <Line isAnimationActive={false} type="monotone" dataKey="goats" stroke="#ea580c" name="Goats" strokeWidth={2} />
           </LineChart>
         </ResponsiveContainer>
       </div>
@@ -75,8 +75,8 @@ export function DashboardClient({
             <YAxis tick={{ fontSize: 12 }} />
             <Tooltip />
             <Legend />
-            <Bar dataKey="layers" fill="#eab308" name="Layers" />
-            <Bar dataKey="broilers" fill="#ef4444" name="Broilers" />
+            <Bar isAnimationActive={false} dataKey="layers" fill="#eab308" name="Layers" />
+            <Bar isAnimationActive={false} dataKey="broilers" fill="#ef4444" name="Broilers" />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -91,7 +91,7 @@ export function DashboardClient({
               <XAxis dataKey="label" tick={{ fontSize: 12 }} />
               <YAxis tick={{ fontSize: 12 }} />
               <Tooltip />
-              <Bar dataKey="milkYield" fill="#06b6d4" name="Litres" />
+              <Bar isAnimationActive={false} dataKey="milkYield" fill="#06b6d4" name="Litres" />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -104,7 +104,7 @@ export function DashboardClient({
               <XAxis dataKey="label" tick={{ fontSize: 12 }} />
               <YAxis domain={[0, 100]} tick={{ fontSize: 12 }} />
               <Tooltip />
-              <Line type="monotone" dataKey="layingPct" stroke="#10b981" name="Laying %" strokeWidth={2} />
+              <Line isAnimationActive={false} type="monotone" dataKey="layingPct" stroke="#10b981" name="Laying %" strokeWidth={2} />
             </LineChart>
           </ResponsiveContainer>
         </div>
