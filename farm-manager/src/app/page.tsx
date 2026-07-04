@@ -58,7 +58,7 @@ export default async function HomePage() {
         <section className="max-w-6xl mx-auto px-6 pt-16 pb-20 text-center">
           <div className="max-w-3xl mx-auto">
             <p className="inline-block bg-amber-100 text-amber-900 px-4 py-1 rounded-full text-sm font-medium mb-6">
-              Built for African farmers
+              For farmers everywhere — works on any phone
             </p>
             <h2 className="text-5xl font-bold leading-tight mb-6">
               Your whole farm,

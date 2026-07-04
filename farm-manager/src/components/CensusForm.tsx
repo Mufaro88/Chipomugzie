@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ImportCensus, type ImportedValues } from "./ImportCensus";
+import { CropsFields, ExpensesFields, type CropRow, type ExpenseRow } from "./CropsExpenses";
 
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",
@@ -158,6 +159,9 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
       .catch(() => {});
   }, [farmId, month, year]);
 
+  const [crops, setCrops] = useState<CropRow[]>([]);
+  const [expenses, setExpenses] = useState<ExpenseRow[]>([]);
+
   function applyImport(values: ImportedValues) {
     setBeef((prev) => ({ ...prev, ...values.beef }));
     setDairy((prev) => ({ ...prev, ...values.dairy }));
@@ -207,6 +211,20 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
       body: JSON.stringify({
         farmId, month, year,
         beef, dairy, goats, layers, broilers,
+        crops: crops
+          .filter((c) => c.cropName.trim())
+          .map((c) => ({
+            cropName: c.cropName.trim(),
+            hectares: parseFloat(c.hectares) || null,
+            activity: c.activity.trim() || "—",
+          })),
+        expenses: expenses
+          .filter((e) => e.description.trim() || parseFloat(e.amountUsd) > 0)
+          .map((e) => ({
+            category: e.category,
+            description: e.description.trim() || "—",
+            amountUsd: parseFloat(e.amountUsd) || 0,
+          })),
       }),
     });
 
@@ -461,6 +479,16 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
             placeholder="e.g. First sales started, batch received..."
           />
         </div>
+      </SectionCard>
+
+      {/* CROPS SECTION */}
+      <SectionCard title="🌱 Crops Section" color="bg-teal-700">
+        <CropsFields rows={crops} setRows={setCrops} />
+      </SectionCard>
+
+      {/* MONEY SPENT SECTION */}
+      <SectionCard title="💵 Money Spent This Month" color="bg-stone-700">
+        <ExpensesFields rows={expenses} setRows={setExpenses} />
       </SectionCard>
 
       {/* Submit */}

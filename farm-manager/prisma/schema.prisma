@@ -24,6 +24,7 @@ model User {
   auditLogs     AuditLog[]
   monthlyCensus MonthlyCensus[]
   payments      Payment[]
+  feedback      Feedback[]
 }
 
 model Payment {
@@ -91,6 +92,7 @@ model MonthlyCensus {
   broilerSection   BroilerSection?
   cropActivities   CropActivity[]
   workshopItems    WorkshopItem[]
+  expenses         Expense[]
 
   @@unique([farmId, month, year])
 }
@@ -241,6 +243,28 @@ model WorkshopItem {
   notes       String?
 
   census MonthlyCensus @relation(fields: [censusId], references: [id], onDelete: Cascade)
+}
+
+model Expense {
+  id          String @id @default(cuid())
+  censusId    String
+  category    String @default("feed") // feed, medicine, fuel, labour, equipment, other
+  description String
+  amountUsd   Float  @default(0)
+
+  census MonthlyCensus @relation(fields: [censusId], references: [id], onDelete: Cascade)
+}
+
+model Feedback {
+  id        String   @id @default(cuid())
+  userId    String?
+  name      String
+  email     String?
+  type      String   @default("suggestion") // suggestion, complaint, question, review
+  message   String
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
 }
 
 model AuditLog {

@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
   try {
     const user = await requireAuth();
     const data = await req.json();
-    const { farmId, month, year, beef, dairy, goats, layers, broilers, crops, workshop, notes } = data;
+    const { farmId, month, year, beef, dairy, goats, layers, broilers, crops, workshop, expenses, notes } = data;
 
     if (!farmId || !month || !year) {
       return NextResponse.json({ error: "farmId, month and year are required" }, { status: 400 });
@@ -75,6 +75,7 @@ export async function POST(req: NextRequest) {
         broilerSection: broilers ? { create: { ...broilers } } : undefined,
         cropActivities: crops?.length ? { create: crops } : undefined,
         workshopItems: workshop?.length ? { create: workshop } : undefined,
+        expenses: expenses?.length ? { create: expenses } : undefined,
       },
       include: {
         beefSection: true,

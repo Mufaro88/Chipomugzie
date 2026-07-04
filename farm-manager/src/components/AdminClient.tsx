@@ -21,10 +21,19 @@ export function AdminClient() {
   const [busy, setBusy] = useState<string | null>(null);
   const [monthsByUser, setMonthsByUser] = useState<Record<string, number>>({});
 
+  const [feedback, setFeedback] = useState<
+    { id: string; name: string; email: string | null; type: string; message: string; createdAt: string }[]
+  >([]);
+
   async function load() {
-    const res = await fetch("/api/admin/users");
-    const data = await res.json();
-    setUsers(data.users ?? []);
+    const [usersRes, feedbackRes] = await Promise.all([
+      fetch("/api/admin/users"),
+      fetch("/api/feedback"),
+    ]);
+    const usersData = await usersRes.json();
+    const feedbackData = await feedbackRes.json();
+    setUsers(usersData.users ?? []);
+    setFeedback(feedbackData.feedback ?? []);
     setLoading(false);
   }
 
@@ -147,6 +156,33 @@ export function AdminClient() {
           </table>
         </div>
       )}
+
+      <div className="mt-10">
+        <h3 className="text-lg font-bold text-stone-900 mb-3">
+          Messages from users {feedback.length > 0 && `(${feedback.length})`}
+        </h3>
+        {feedback.length === 0 ? (
+          <p className="text-stone-500 text-sm">No messages yet.</p>
+        ) : (
+          <div className="space-y-3">
+            {feedback.map((f) => (
+              <div key={f.id} className="bg-white rounded-xl shadow-sm border border-orange-100 p-4">
+                <div className="flex justify-between items-start mb-1">
+                  <p className="text-sm font-medium text-stone-900">
+                    {f.name}
+                    {f.email && <span className="text-stone-400 font-normal"> · {f.email}</span>}
+                  </p>
+                  <span className="text-xs bg-stone-100 text-stone-600 rounded-full px-2 py-1 capitalize">{f.type}</span>
+                </div>
+                <p className="text-sm text-stone-700 whitespace-pre-wrap">{f.message}</p>
+                <p className="text-xs text-stone-400 mt-2">
+                  {new Date(f.createdAt).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

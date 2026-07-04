@@ -25,6 +25,22 @@ type TrendPoint = {
   layingPct: number;
 };
 
+function herdSentence(name: string, first: number, last: number) {
+  if (first === 0 && last === 0) return "";
+  if (last > first) return `${name} grew from ${first.toLocaleString()} to ${last.toLocaleString()} — going up. `;
+  if (last < first) return `${name} went down from ${first.toLocaleString()} to ${last.toLocaleString()}. `;
+  return `${name} stayed steady at ${last.toLocaleString()}. `;
+}
+
+function ChartCaption({ text }: { text: string }) {
+  if (!text) return null;
+  return (
+    <p className="text-sm text-stone-600 bg-orange-50 border border-orange-100 rounded-lg px-4 py-3 mt-3 leading-relaxed">
+      💬 {text}
+    </p>
+  );
+}
+
 export function DashboardClient({
   trendData,
   farmId,
@@ -32,6 +48,41 @@ export function DashboardClient({
   trendData: TrendPoint[];
   farmId: string;
 }) {
+  const first = trendData[0];
+  const last = trendData[trendData.length - 1];
+  const span = first && last ? `${first.label} to ${last.label}` : "";
+
+  const livestockCaption = trendData.length < 2 ? "" :
+    `From ${span}: ` +
+    herdSentence("your beef herd", first.beef, last.beef) +
+    herdSentence("dairy", first.dairy, last.dairy) +
+    herdSentence("goats", first.goats, last.goats);
+
+  const poultryCaption = trendData.length < 2 ? "" :
+    herdSentence("Your layer flock", first.layers, last.layers) +
+    (last.broilers === 0 && trendData.some((t) => t.broilers > 0)
+      ? "There are no broilers right now — the last batch was sold."
+      : herdSentence("broilers", first.broilers, last.broilers));
+
+  const milkMonths = trendData.filter((t) => t.milkYield > 0);
+  const bestMilk = milkMonths.length
+    ? milkMonths.reduce((a, b) => (b.milkYield > a.milkYield ? b : a), milkMonths[0])
+    : null;
+  const milkCaption = milkMonths.length < 2 || !bestMilk ? "" :
+    `Best month so far: ${bestMilk.label} with ${bestMilk.milkYield.toLocaleString()} litres. ` +
+    (last.milkYield >= (trendData[trendData.length - 2]?.milkYield ?? 0)
+      ? "Milk is going up — the cows are doing well."
+      : "Milk dropped compared to last month — worth asking the manager why.");
+
+  const avgLaying = trendData.length
+    ? trendData.reduce((sum, t) => sum + t.layingPct, 0) / trendData.length
+    : 0;
+  const layingCaption = trendData.length < 2 ? "" :
+    `The hens are laying at ${last.layingPct}% now, against an average of ${avgLaying.toFixed(0)}% over these months. ` +
+    (last.layingPct >= avgLaying
+      ? "That is a healthy rate."
+      : "Below average — older birds or feed changes usually explain this.");
+
   if (trendData.length === 0) {
     return (
       <div className="bg-white rounded-2xl shadow-sm border border-orange-100 p-8 text-center">
@@ -63,6 +114,7 @@ export function DashboardClient({
             <Line isAnimationActive={false} type="monotone" dataKey="goats" stroke="#b45309" name="Goats" strokeWidth={2} />
           </LineChart>
         </ResponsiveContainer>
+        <ChartCaption text={livestockCaption} />
       </div>
 
       {/* Poultry Trend */}
@@ -79,6 +131,7 @@ export function DashboardClient({
             <Bar isAnimationActive={false} dataKey="broilers" fill="#0d9488" name="Broilers" />
           </BarChart>
         </ResponsiveContainer>
+        <ChartCaption text={poultryCaption} />
       </div>
 
       {/* Dairy Production & Laying % */}
@@ -94,6 +147,7 @@ export function DashboardClient({
               <Bar isAnimationActive={false} dataKey="milkYield" fill="#c2410c" name="Litres" />
             </BarChart>
           </ResponsiveContainer>
+          <ChartCaption text={milkCaption} />
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-orange-100 p-6">
@@ -107,6 +161,7 @@ export function DashboardClient({
               <Line isAnimationActive={false} type="monotone" dataKey="layingPct" stroke="#c2410c" name="Laying %" strokeWidth={2} />
             </LineChart>
           </ResponsiveContainer>
+          <ChartCaption text={layingCaption} />
         </div>
       </div>
 

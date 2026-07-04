@@ -15,7 +15,7 @@ export function paynowConfigured() {
 
 export function proPriceUsd() {
   const parsed = Number(process.env.PRO_PRICE_USD);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : 10;
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 15;
 }
 
 function hashFields(fields: Record<string, string>, integrationKey: string) {

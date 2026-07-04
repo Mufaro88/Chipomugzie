@@ -2,6 +2,7 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { redirect, notFound } from "next/navigation";
 import { PrintButton } from "@/components/PrintButton";
+import { WhatsAppShareButton } from "@/components/ShareButtons";
 
 const MONTHS = [
   "", "January", "February", "March", "April", "May", "June",
@@ -25,6 +26,7 @@ export default async function CensusDetailPage({ params }: { params: Promise<{ i
       broilerSection: true,
       cropActivities: true,
       workshopItems: true,
+      expenses: true,
       submittedBy: { select: { name: true } },
     },
   });
@@ -37,8 +39,21 @@ export default async function CensusDetailPage({ params }: { params: Promise<{ i
   return (
     <div className="max-w-3xl mx-auto">
       <div className="flex justify-between items-center mb-6 print:hidden">
-        <h2 className="text-2xl font-bold text-gray-900">Monthly Report</h2>
-        <PrintButton />
+        <h2 className="text-2xl font-bold text-stone-900">Monthly Report</h2>
+        <div className="flex gap-2">
+          <WhatsAppShareButton
+            summary={[
+              `*${census.farm.name} — Monthly Report, ${reportDate}*`,
+              census.beefSection ? `🐂 Beef cattle: ${census.beefSection.closingStock}` : "",
+              census.dairySection ? `🐄 Dairy cattle: ${census.dairySection.closingStock}` : "",
+              census.goatSection ? `🐐 Goats: ${census.goatSection.closingStock}` : "",
+              census.layerSection ? `🐔 Layers: ${census.layerSection.closingStock} (laying ${census.layerSection.averageLayingPct}%)` : "",
+              census.broilerSection ? `🐥 Broilers: ${census.broilerSection.closingStock}` : "",
+              census.dairySection?.totalMilkYield ? `🥛 Milk this month: ${census.dairySection.totalMilkYield.toLocaleString()} litres` : "",
+            ].filter(Boolean).join("\n")}
+          />
+          <PrintButton />
+        </div>
       </div>
 
       {/* Printable Report */}
@@ -209,6 +224,60 @@ export default async function CensusDetailPage({ params }: { params: Promise<{ i
               </div>
             )}
             {census.broilerSection.notes && <Notes text={census.broilerSection.notes} />}
+          </ReportSection>
+        )}
+
+        {/* Crops Section */}
+        {census.cropActivities.length > 0 && (
+          <ReportSection title="Crops Section" color="border-teal-600">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-gray-500 border-b">
+                  <th className="py-1">Crop</th>
+                  <th className="py-1">Hectares</th>
+                  <th className="py-1">Activity</th>
+                </tr>
+              </thead>
+              <tbody>
+                {census.cropActivities.map((crop) => (
+                  <tr key={crop.id} className="border-b border-gray-50">
+                    <td className="py-1 font-medium text-gray-900">{crop.cropName}</td>
+                    <td className="py-1 text-gray-700">{crop.hectares ?? "—"}</td>
+                    <td className="py-1 text-gray-700">{crop.activity}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </ReportSection>
+        )}
+
+        {/* Money Spent Section */}
+        {census.expenses.length > 0 && (
+          <ReportSection title="Money Spent This Month" color="border-stone-500">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-gray-500 border-b">
+                  <th className="py-1">Category</th>
+                  <th className="py-1">Detail</th>
+                  <th className="py-1 text-right">US$</th>
+                </tr>
+              </thead>
+              <tbody>
+                {census.expenses.map((expense) => (
+                  <tr key={expense.id} className="border-b border-gray-50">
+                    <td className="py-1 text-gray-700 capitalize">{expense.category}</td>
+                    <td className="py-1 text-gray-700">{expense.description}</td>
+                    <td className="py-1 text-right text-gray-900">{expense.amountUsd.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                  </tr>
+                ))}
+                <tr>
+                  <td colSpan={2} className="py-2 font-bold text-gray-900">Total spent</td>
+                  <td className="py-2 text-right font-bold text-gray-900">
+                    ${census.expenses.reduce((sum, e) => sum + e.amountUsd, 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </ReportSection>
         )}
 

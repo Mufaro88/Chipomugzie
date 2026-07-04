@@ -10,6 +10,7 @@ const navItems = [
   { href: "/farms", label: "My Farms", icon: "🌾" },
   { href: "/reports", label: "Reports", icon: "📈" },
   { href: "/upgrade", label: "Go Pro", icon: "⭐" },
+  { href: "/contact", label: "Contact Us", icon: "💬" },
 ];
 
 export function Sidebar({
