@@ -51,7 +51,7 @@ export default function SignupPage() {
       <div className="bg-white rounded-2xl shadow-xl border border-orange-100 w-full max-w-md p-8">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-stone-900">🌅 The Farmer&apos;s <span className="text-orange-700">Pocket Book</span></h1>
-          <p className="text-gray-500 mt-2">Create your farm account — free Pro trial included</p>
+          <p className="text-gray-500 mt-2">Create your farm account with a free Pro trial included</p>
         </div>
 
         {error && (
@@ -120,7 +120,7 @@ export default function SignupPage() {
           </div>
 
           <p className="text-xs text-teal-800 bg-teal-50 border border-teal-100 rounded-lg px-3 py-2">
-            🎁 Every new account starts with a free 14-day Pro trial — a full month with an invite code.
+            🎁 Every new account starts with a free 14-day Pro trial. Use an invite code and it becomes a full month.
           </p>
 
           <button

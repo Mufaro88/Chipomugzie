@@ -125,12 +125,12 @@ export function UpgradeClient({
           {state === "paid" ? (
             <div className="bg-teal-50 border border-teal-200 rounded-xl p-6 text-center">
               <p className="text-3xl mb-2">🎉</p>
-              <p className="font-bold text-teal-900">Payment received — you are now Pro!</p>
+              <p className="font-bold text-teal-900">Payment received. You are now Pro!</p>
               <p className="text-sm text-teal-800 mt-1">Taking you back to your dashboard...</p>
             </div>
           ) : state === "manual" ? (
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-6">
-              <p className="font-bold text-stone-900 mb-2">Almost there — pay the Pocket Book team directly</p>
+              <p className="font-bold text-stone-900 mb-2">Almost there. Pay the Pocket Book team directly.</p>
               <p className="text-stone-700 text-sm leading-relaxed">
                 Automatic EcoCash payments are being switched on. For now, send{" "}
                 <strong>${total}</strong> to the Pocket Book team by EcoCash or bank
@@ -193,7 +193,7 @@ export function UpgradeClient({
                   ? "Starting…"
                   : paymentsLive
                     ? `Pay $${total} with EcoCash`
-                    : `Request Pro — $${total}`}
+                    : `Request Pro ($${total})`}
               </button>
             </>
           )}
@@ -205,7 +205,7 @@ export function UpgradeClient({
         <h3 className="font-bold text-stone-900 mb-1">🎁 Give a month, get a month</h3>
         <p className="text-sm text-stone-600 mb-4">
           Invite a farming friend with your code. When they sign up with it, you BOTH
-          get a free month of Pro. No limit — invite ten friends, get ten months.
+          get a free month of Pro. No limit: invite ten friends, get ten months.
         </p>
         <div className="flex flex-wrap items-center gap-3">
           <span className="font-mono text-lg font-bold bg-teal-50 border border-teal-200 text-teal-900 rounded-lg px-4 py-2 tracking-wider">
@@ -215,7 +215,7 @@ export function UpgradeClient({
             type="button"
             onClick={() => {
               const text = encodeURIComponent(
-                `I keep my farm records on The Farmer's Pocket Book 🌅 — livestock, crops, money, all in one place with monthly charts.\n\nSign up free here: ${window.location.origin}/signup?invite=${referralCode}\n\nUse my invite code ${referralCode} and we both get a free month of Pro!`
+                `I keep my farm records on The Farmer's Pocket Book 🌅. Livestock, crops, money, all in one place with monthly charts.\n\nSign up free here: ${window.location.origin}/signup?invite=${referralCode}\n\nUse my invite code ${referralCode} and we both get a free month of Pro!`
               );
               window.open(`https://wa.me/?text=${text}`, "_blank");
             }}

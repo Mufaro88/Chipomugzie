@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 import { checkPaymentStatus } from "@/lib/paynow";
 import { applyPaidPayment } from "@/lib/subscription";
 
-// Paynow server-to-server callback. We never trust the posted fields —
+// Paynow server-to-server callback. We never trust the posted fields;
 // we re-check the payment against the poll URL we stored at initiation.
 export async function POST(req: Request) {
   const raw = await req.text();

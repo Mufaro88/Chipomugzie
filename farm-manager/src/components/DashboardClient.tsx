@@ -27,7 +27,7 @@ type TrendPoint = {
 
 function herdSentence(name: string, first: number, last: number) {
   if (first === 0 && last === 0) return "";
-  if (last > first) return `${name} grew from ${first.toLocaleString()} to ${last.toLocaleString()} — going up. `;
+  if (last > first) return `${name} grew from ${first.toLocaleString()} to ${last.toLocaleString()}. Going up. `;
   if (last < first) return `${name} went down from ${first.toLocaleString()} to ${last.toLocaleString()}. `;
   return `${name} stayed steady at ${last.toLocaleString()}. `;
 }
@@ -61,7 +61,7 @@ export function DashboardClient({
   const poultryCaption = trendData.length < 2 ? "" :
     herdSentence("Your layer flock", first.layers, last.layers) +
     (last.broilers === 0 && trendData.some((t) => t.broilers > 0)
-      ? "There are no broilers right now — the last batch was sold."
+      ? "There are no broilers right now. The last batch was sold."
       : herdSentence("broilers", first.broilers, last.broilers));
 
   const milkMonths = trendData.filter((t) => t.milkYield > 0);
@@ -71,8 +71,8 @@ export function DashboardClient({
   const milkCaption = milkMonths.length < 2 || !bestMilk ? "" :
     `Best month so far: ${bestMilk.label} with ${bestMilk.milkYield.toLocaleString()} litres. ` +
     (last.milkYield >= (trendData[trendData.length - 2]?.milkYield ?? 0)
-      ? "Milk is going up — the cows are doing well."
-      : "Milk dropped compared to last month — worth asking the manager why.");
+      ? "Milk is going up. The cows are doing well."
+      : "Milk dropped compared to last month. It is worth asking the manager why.");
 
   const avgLaying = trendData.length
     ? trendData.reduce((sum, t) => sum + t.layingPct, 0) / trendData.length
@@ -81,7 +81,7 @@ export function DashboardClient({
     `The hens are laying at ${last.layingPct}% now, against an average of ${avgLaying.toFixed(0)}% over these months. ` +
     (last.layingPct >= avgLaying
       ? "That is a healthy rate."
-      : "Below average — older birds or feed changes usually explain this.");
+      : "Below average. Older birds or feed changes usually explain this.");
 
   if (trendData.length === 0) {
     return (
@@ -109,9 +109,9 @@ export function DashboardClient({
             <YAxis tick={{ fontSize: 12 }} />
             <Tooltip />
             <Legend />
-            <Line isAnimationActive={false} type="monotone" dataKey="beef" stroke="#c2410c" name="Beef" strokeWidth={2} />
-            <Line isAnimationActive={false} type="monotone" dataKey="dairy" stroke="#0d9488" name="Dairy" strokeWidth={2} />
-            <Line isAnimationActive={false} type="monotone" dataKey="goats" stroke="#b45309" name="Goats" strokeWidth={2} />
+            <Line isAnimationActive={false} type="monotone" dataKey="beef" stroke="#D55E00" name="Beef" strokeWidth={2} />
+            <Line isAnimationActive={false} type="monotone" dataKey="dairy" stroke="#0072B2" name="Dairy" strokeWidth={2} />
+            <Line isAnimationActive={false} type="monotone" dataKey="goats" stroke="#B8860B" name="Goats" strokeWidth={2} />
           </LineChart>
         </ResponsiveContainer>
         <ChartCaption text={livestockCaption} />
@@ -127,8 +127,8 @@ export function DashboardClient({
             <YAxis tick={{ fontSize: 12 }} />
             <Tooltip />
             <Legend />
-            <Bar isAnimationActive={false} dataKey="layers" fill="#c2410c" name="Layers" />
-            <Bar isAnimationActive={false} dataKey="broilers" fill="#0d9488" name="Broilers" />
+            <Bar isAnimationActive={false} dataKey="layers" fill="#D55E00" name="Layers" />
+            <Bar isAnimationActive={false} dataKey="broilers" fill="#0072B2" name="Broilers" />
           </BarChart>
         </ResponsiveContainer>
         <ChartCaption text={poultryCaption} />
@@ -144,7 +144,7 @@ export function DashboardClient({
               <XAxis dataKey="label" tick={{ fontSize: 12 }} />
               <YAxis tick={{ fontSize: 12 }} />
               <Tooltip />
-              <Bar isAnimationActive={false} dataKey="milkYield" fill="#c2410c" name="Litres" />
+              <Bar isAnimationActive={false} dataKey="milkYield" fill="#0072B2" name="Litres" />
             </BarChart>
           </ResponsiveContainer>
           <ChartCaption text={milkCaption} />
@@ -158,7 +158,7 @@ export function DashboardClient({
               <XAxis dataKey="label" tick={{ fontSize: 12 }} />
               <YAxis domain={[0, 100]} tick={{ fontSize: 12 }} />
               <Tooltip />
-              <Line isAnimationActive={false} type="monotone" dataKey="layingPct" stroke="#c2410c" name="Laying %" strokeWidth={2} />
+              <Line isAnimationActive={false} type="monotone" dataKey="layingPct" stroke="#009E73" name="Laying %" strokeWidth={2} />
             </LineChart>
           </ResponsiveContainer>
           <ChartCaption text={layingCaption} />

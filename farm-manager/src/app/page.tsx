@@ -7,7 +7,7 @@ const FEATURES = [
   {
     icon: "🐄",
     title: "Livestock Census",
-    text: "Beef, dairy, goats and poultry. Monthly counts with births, deaths, sales and movements — closing stock worked out for you.",
+    text: "Beef, dairy, goats and poultry. Monthly counts with births, deaths, sales and movements. Closing stock is worked out for you.",
   },
   {
     icon: "📈",
@@ -22,7 +22,7 @@ const FEATURES = [
   {
     icon: "📋",
     title: "Spreadsheet Import",
-    text: "Managers can fill an Excel template or paste their numbers — no slow typing into small boxes.",
+    text: "Managers can fill an Excel template or paste their numbers. No slow typing into small boxes.",
   },
 ];
 
@@ -58,7 +58,7 @@ export default async function HomePage() {
         <section className="max-w-6xl mx-auto px-6 pt-16 pb-20 text-center">
           <div className="max-w-3xl mx-auto">
             <p className="inline-block bg-amber-100 text-amber-900 px-4 py-1 rounded-full text-sm font-medium mb-6">
-              For farmers everywhere — works on any phone
+              For farmers everywhere, on any phone
             </p>
             <h2 className="text-5xl font-bold leading-tight mb-6">
               Your whole farm,
@@ -66,14 +66,14 @@ export default async function HomePage() {
             </h2>
             <p className="text-xl text-stone-600 mb-10 leading-relaxed">
               Track livestock, crops and production. Get monthly reports with
-              charts your whole family can understand. No more lost notebooks —
+              charts your whole family can understand. No more lost notebooks, and
               simple enough for anyone to use.
             </p>
             <Link
               href="/signup"
               className="inline-block bg-orange-600 text-white px-8 py-4 rounded-xl text-lg font-bold hover:bg-orange-700 transition-colors shadow-lg shadow-orange-200"
             >
-              Start Your Pocket Book — Free
+              Start Your Pocket Book for Free
             </Link>
           </div>
         </section>
@@ -136,7 +136,7 @@ export default async function HomePage() {
         </section>
 
         <footer className="border-t border-orange-100 py-8 text-center text-stone-400 text-sm">
-          The Farmer&apos;s Pocket Book — farm records made simple.
+          The Farmer&apos;s Pocket Book. Farm records made simple.
         </footer>
       </main>
     </div>

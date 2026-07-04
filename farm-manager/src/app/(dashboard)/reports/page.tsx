@@ -34,7 +34,7 @@ export default async function ReportsPage() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-stone-900 mb-6">Monthly Reports — {farm.name}</h2>
+      <h2 className="text-2xl font-bold text-stone-900 mb-6">Monthly Reports: {farm.name}</h2>
 
       {farm.monthlyCensus.length === 0 ? (
         <div className="bg-white rounded-2xl shadow-sm border border-orange-100 p-8 text-center text-stone-500">
@@ -73,23 +73,23 @@ export default async function ReportsPage() {
               <div className="mt-4 grid grid-cols-5 gap-4 text-sm">
                 <div>
                   <p className="text-stone-500">Beef</p>
-                  <p className="font-bold text-stone-900">{census.beefSection?.closingStock ?? "—"}</p>
+                  <p className="font-bold text-stone-900">{census.beefSection?.closingStock ?? ", "}</p>
                 </div>
                 <div>
                   <p className="text-stone-500">Dairy</p>
-                  <p className="font-bold text-stone-900">{census.dairySection?.closingStock ?? "—"}</p>
+                  <p className="font-bold text-stone-900">{census.dairySection?.closingStock ?? ", "}</p>
                 </div>
                 <div>
                   <p className="text-stone-500">Goats</p>
-                  <p className="font-bold text-stone-900">{census.goatSection?.closingStock ?? "—"}</p>
+                  <p className="font-bold text-stone-900">{census.goatSection?.closingStock ?? ", "}</p>
                 </div>
                 <div>
                   <p className="text-stone-500">Layers</p>
-                  <p className="font-bold text-stone-900">{census.layerSection?.closingStock ?? "—"}</p>
+                  <p className="font-bold text-stone-900">{census.layerSection?.closingStock ?? ", "}</p>
                 </div>
                 <div>
                   <p className="text-stone-500">Broilers</p>
-                  <p className="font-bold text-stone-900">{census.broilerSection?.closingStock ?? "—"}</p>
+                  <p className="font-bold text-stone-900">{census.broilerSection?.closingStock ?? ", "}</p>
                 </div>
               </div>
             </Link>

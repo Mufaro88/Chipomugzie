@@ -187,7 +187,7 @@ export function ImportCensus({ onImport }: { onImport: (values: ImportedValues) 
     const skipped = result.unknown.length
       ? ` (${result.unknown.length} line${result.unknown.length > 1 ? "s" : ""} not recognized: ${result.unknown.slice(0, 3).join(", ")}${result.unknown.length > 3 ? "…" : ""})`
       : "";
-    setMessage({ kind: "ok", text: `Filled in ${result.imported} numbers below — scroll down to check them, then submit.${skipped}` });
+    setMessage({ kind: "ok", text: `Filled in ${result.imported} numbers below. Scroll down to check them, then submit.${skipped}` });
     setPasteText("");
   }
 
@@ -224,7 +224,7 @@ export function ImportCensus({ onImport }: { onImport: (values: ImportedValues) 
         onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between p-4 bg-teal-700 text-white font-medium"
       >
-        <span>📥 Import from spreadsheet — no typing needed</span>
+        <span>📥 Import from spreadsheet (no typing needed)</span>
         <span className="text-xl">{open ? "−" : "+"}</span>
       </button>
 
@@ -246,7 +246,7 @@ export function ImportCensus({ onImport }: { onImport: (values: ImportedValues) 
 
           <div>
             <p className="text-sm text-stone-600 mb-3">
-              <strong>Step 2:</strong> Bring the numbers back — either way works:
+              <strong>Step 2:</strong> Bring the numbers back. Either way works:
             </p>
             <div className="grid md:grid-cols-2 gap-4">
               <div className="border border-stone-200 rounded-xl p-4">

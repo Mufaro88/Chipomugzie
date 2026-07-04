@@ -83,7 +83,7 @@ export function ExpensesFields({
   return (
     <div className="space-y-3">
       <p className="text-sm text-stone-600">
-        What money went out this month? Feed, medicine, fuel, wages — so the owner
+        What money went out this month? Feed, medicine, fuel, wages, so the owner
         sees costs next to production.
       </p>
       {rows.map((row, i) => (

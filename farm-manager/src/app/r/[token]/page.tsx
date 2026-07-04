@@ -7,7 +7,7 @@ const MONTHS = [
   "July", "August", "September", "October", "November", "December",
 ];
 
-// Public read-only report — reachable by anyone with the share link.
+// Public read-only report, reachable by anyone with the share link.
 export default async function SharedReportPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
 
@@ -45,7 +45,7 @@ export default async function SharedReportPage({ params }: { params: Promise<{ t
             <p className="text-3xl mb-2">🌅</p>
             <h1 className="text-2xl font-bold text-stone-900">{census.farm.name}</h1>
             <p className="text-stone-500">
-              Monthly Report — {MONTHS[census.month]} {census.year}
+              Monthly Report, {MONTHS[census.month]} {census.year}
             </p>
             {census.farm.location && <p className="text-stone-400 text-sm mt-1">{census.farm.location}</p>}
           </div>
@@ -79,7 +79,7 @@ export default async function SharedReportPage({ params }: { params: Promise<{ t
             href="/signup"
             className="inline-block bg-orange-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-orange-700 transition-colors"
           >
-            Keep your own farm records — start free
+            Keep your own farm records. Start free
           </Link>
         </div>
       </div>

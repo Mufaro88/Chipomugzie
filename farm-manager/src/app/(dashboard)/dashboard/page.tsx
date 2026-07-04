@@ -112,8 +112,8 @@ export default async function DashboardPage() {
         </h2>
         <p className="text-stone-500">
           {latest
-            ? `${farm.name} — latest census ${monthNames[latest.month]} ${latest.year}`
-            : `${farm.name} — no census yet`}
+            ? `${farm.name}. Latest census: ${monthNames[latest.month]} ${latest.year}`
+            : `${farm.name}. No census yet.`}
         </p>
       </div>
 
@@ -155,7 +155,7 @@ function SetupFarm({ firstName }: { firstName: string }) {
           Welcome, {firstName}!
         </h2>
         <p className="text-stone-500 mb-6">
-          Let&apos;s open your Pocket Book — set up your first farm.
+          Let&apos;s open your Pocket Book. Set up your first farm.
         </p>
         <SetupFarmFormClient />
       </div>

@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "The Farmer's Pocket Book",
-  description: "Your farm records, always with you — built for African farmers",
+  description: "Your farm records, always with you",
 };
 
 export default function RootLayout({

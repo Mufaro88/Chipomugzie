@@ -117,7 +117,7 @@ export function AdminClient() {
                   <td className="px-4 py-3 text-stone-500 text-xs">
                     {u.payments[0]
                       ? `$${u.payments[0].amountUsd} · ${u.payments[0].months}mo · ${u.payments[0].status} (${u.payments[0].method})`
-                      : "—"}
+                      : ", "}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">

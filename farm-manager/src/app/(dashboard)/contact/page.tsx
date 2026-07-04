@@ -26,7 +26,7 @@ export default function ContactPage() {
     });
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      setError(data.error || "Could not send — please try again");
+      setError(data.error || "Could not send, please try again");
       setState("idle");
       return;
     }
@@ -59,7 +59,7 @@ export default function ContactPage() {
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-stone-900">Contact Us</h2>
         <p className="text-stone-500">
-          Suggestions, complaints, questions or a review — we want to hear it.
+          Suggestions, complaints, questions or a review. We want to hear it all.
         </p>
       </div>
 

@@ -8,7 +8,7 @@ export default async function UpgradePage() {
   const user = await getSession();
   if (!user) redirect("/login");
 
-  // Older accounts were created before invite codes existed — give them one.
+  // Older accounts were created before invite codes existed, give them one.
   let referralCode = user.referralCode;
   if (!referralCode) {
     const base = user.name.replace(/[^a-zA-Z]/g, "").slice(0, 5).toUpperCase() || "FARM";

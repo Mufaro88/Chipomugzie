@@ -216,13 +216,13 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
           .map((c) => ({
             cropName: c.cropName.trim(),
             hectares: parseFloat(c.hectares) || null,
-            activity: c.activity.trim() || "—",
+            activity: c.activity.trim() || ", ",
           })),
         expenses: expenses
           .filter((e) => e.description.trim() || parseFloat(e.amountUsd) > 0)
           .map((e) => ({
             category: e.category,
-            description: e.description.trim() || "—",
+            description: e.description.trim() || ", ",
             amountUsd: parseFloat(e.amountUsd) || 0,
           })),
       }),

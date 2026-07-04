@@ -43,7 +43,7 @@ export default async function CensusDetailPage({ params }: { params: Promise<{ i
         <div className="flex gap-2">
           <WhatsAppShareButton
             summary={[
-              `*${census.farm.name} — Monthly Report, ${reportDate}*`,
+              `*${census.farm.name}: Monthly Report, ${reportDate}*`,
               census.beefSection ? `🐂 Beef cattle: ${census.beefSection.closingStock}` : "",
               census.dairySection ? `🐄 Dairy cattle: ${census.dairySection.closingStock}` : "",
               census.goatSection ? `🐐 Goats: ${census.goatSection.closingStock}` : "",
@@ -61,7 +61,7 @@ export default async function CensusDetailPage({ params }: { params: Promise<{ i
       <div className="bg-white rounded-xl shadow-sm p-8 print:shadow-none print:p-0" id="report">
         <div className="text-center mb-8 border-b pb-6">
           <h1 className="text-2xl font-bold text-gray-900">{census.farm.name}</h1>
-          <h2 className="text-lg text-gray-600">Monthly Report — {reportDate}</h2>
+          <h2 className="text-lg text-gray-600">Monthly Report, {reportDate}</h2>
         </div>
 
         {/* Beef Section */}
@@ -243,7 +243,7 @@ export default async function CensusDetailPage({ params }: { params: Promise<{ i
                 {census.cropActivities.map((crop) => (
                   <tr key={crop.id} className="border-b border-gray-50">
                     <td className="py-1 font-medium text-gray-900">{crop.cropName}</td>
-                    <td className="py-1 text-gray-700">{crop.hectares ?? "—"}</td>
+                    <td className="py-1 text-gray-700">{crop.hectares ?? ", "}</td>
                     <td className="py-1 text-gray-700">{crop.activity}</td>
                   </tr>
                 ))}
