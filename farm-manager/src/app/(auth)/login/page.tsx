@@ -33,11 +33,11 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-800 to-green-950 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
+    <div className="min-h-screen bg-gradient-to-br from-orange-100 via-[#FFF8F0] to-amber-100 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-xl border border-orange-100 w-full max-w-md p-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-green-800">Chipomugzie</h1>
-          <p className="text-gray-500 mt-2">Farm Manager</p>
+          <h1 className="text-3xl font-bold text-stone-900">🌅 The Farmer&apos;s <span className="text-orange-700">Pocket Book</span></h1>
+          <p className="text-stone-500 mt-2">Your farm records, always with you</p>
         </div>
 
         {error && (
@@ -53,7 +53,7 @@ export default function LoginPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-gray-900"
               placeholder="you@example.com"
               required
             />
@@ -65,7 +65,7 @@ export default function LoginPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-gray-900"
               placeholder="Enter your password"
               required
             />
@@ -74,7 +74,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-green-700 text-white py-3 rounded-lg font-medium hover:bg-green-800 disabled:opacity-50 transition-colors"
+            className="w-full bg-orange-600 text-white py-3 rounded-lg font-bold hover:bg-orange-700 disabled:opacity-50 transition-colors"
           >
             {loading ? "Signing in..." : "Sign In"}
           </button>
@@ -82,7 +82,7 @@ export default function LoginPage() {
 
         <p className="text-center mt-6 text-gray-500 text-sm">
           Don&apos;t have an account?{" "}
-          <Link href="/signup" className="text-green-700 font-medium hover:underline">
+          <Link href="/signup" className="text-orange-700 font-medium hover:underline">
             Create one
           </Link>
         </p>

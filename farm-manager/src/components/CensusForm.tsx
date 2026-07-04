@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { ImportCensus, type ImportedValues } from "./ImportCensus";
 
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",
@@ -22,15 +23,15 @@ function NumberInput({
   disabled?: boolean;
 }) {
   return (
-    <div className="flex items-center justify-between py-2 border-b border-gray-100">
-      <label className="text-sm text-gray-700">{label}</label>
+    <div className="flex items-center justify-between py-2 border-b border-stone-100">
+      <label className="text-sm text-stone-700">{label}</label>
       <input
         type="number"
         min={0}
         value={value}
         onChange={(e) => onChange(parseInt(e.target.value) || 0)}
         disabled={disabled}
-        className="w-24 text-right px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 disabled:bg-gray-100"
+        className="w-24 text-right px-3 py-2 border border-stone-200 rounded-lg text-sm text-stone-900 disabled:bg-stone-100"
       />
     </div>
   );
@@ -49,7 +50,7 @@ function SectionCard({
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+    <div className="bg-white rounded-2xl shadow-sm border border-orange-100 overflow-hidden">
       <button
         type="button"
         onClick={() => setOpen(!open)}
@@ -157,6 +158,14 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
       .catch(() => {});
   }, [farmId, month, year]);
 
+  function applyImport(values: ImportedValues) {
+    setBeef((prev) => ({ ...prev, ...values.beef }));
+    setDairy((prev) => ({ ...prev, ...values.dairy }));
+    setGoats((prev) => ({ ...prev, ...values.goats }));
+    setLayers((prev) => ({ ...prev, ...values.layers }));
+    setBroilers((prev) => ({ ...prev, ...values.broilers }));
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
@@ -214,7 +223,7 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
 
   if (success) {
     return (
-      <div className="max-w-2xl mx-auto mt-10 bg-green-50 text-green-800 p-8 rounded-xl text-center">
+      <div className="max-w-2xl mx-auto mt-10 bg-teal-50 text-teal-900 p-8 rounded-xl text-center">
         <div className="text-4xl mb-4">&#x2705;</div>
         <h3 className="text-xl font-bold">Census Submitted</h3>
         <p className="mt-2">Redirecting to dashboard...</p>
@@ -229,15 +238,15 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
       )}
 
       {/* Month/Year Selector */}
-      <div className="bg-white rounded-xl shadow-sm p-4">
+      <div className="bg-white rounded-2xl shadow-sm border border-orange-100 p-4">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {farms.length > 1 && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Farm</label>
+              <label className="block text-sm font-medium text-stone-700 mb-1">Farm</label>
               <select
                 value={farmId}
                 onChange={(e) => setFarmId(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900"
+                className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-900"
               >
                 {farms.map((f) => (
                   <option key={f.id} value={f.id}>{f.name}</option>
@@ -246,11 +255,11 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
             </div>
           )}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Month</label>
+            <label className="block text-sm font-medium text-stone-700 mb-1">Month</label>
             <select
               value={month}
               onChange={(e) => setMonth(parseInt(e.target.value))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900"
+              className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-900"
             >
               {MONTHS.map((m, i) => (
                 <option key={i} value={i + 1}>{m}</option>
@@ -258,20 +267,23 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Year</label>
+            <label className="block text-sm font-medium text-stone-700 mb-1">Year</label>
             <input
               type="number"
               value={year}
               onChange={(e) => setYear(parseInt(e.target.value))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900"
+              className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-900"
             />
           </div>
         </div>
       </div>
 
+      {/* Spreadsheet import */}
+      <ImportCensus onImport={applyImport} />
+
       {/* BEEF SECTION */}
-      <SectionCard title="Beef Section" color="bg-amber-600" defaultOpen>
-        <h4 className="font-medium text-gray-900 mb-2">Stock Movement</h4>
+      <SectionCard title="Beef Section" color="bg-orange-700" defaultOpen>
+        <h4 className="font-medium text-stone-900 mb-2">Stock Movement</h4>
         <NumberInput label="Opening Stock" value={beef.openingStock} onChange={(v) => setBeef({ ...beef, openingStock: v })} />
         <NumberInput label="Births" value={beef.births} onChange={(v) => setBeef({ ...beef, births: v })} />
         <NumberInput label="Moved In" value={beef.movedIn} onChange={(v) => setBeef({ ...beef, movedIn: v })} />
@@ -279,12 +291,12 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
         <NumberInput label="Sold" value={beef.sold} onChange={(v) => setBeef({ ...beef, sold: v })} />
         <NumberInput label="Slaughtered" value={beef.slaughtered} onChange={(v) => setBeef({ ...beef, slaughtered: v })} />
         <NumberInput label="Deaths" value={beef.deaths} onChange={(v) => setBeef({ ...beef, deaths: v })} />
-        <div className="flex items-center justify-between py-2 bg-amber-50 px-3 rounded-lg mt-2">
-          <span className="font-bold text-amber-800">Closing Stock</span>
-          <span className="text-xl font-bold text-amber-800">{beef.closingStock}</span>
+        <div className="flex items-center justify-between py-2 bg-orange-50 px-3 rounded-lg mt-2">
+          <span className="font-bold text-orange-800">Closing Stock</span>
+          <span className="text-xl font-bold text-orange-800">{beef.closingStock}</span>
         </div>
 
-        <h4 className="font-medium text-gray-900 mt-6 mb-2">Animal Classes</h4>
+        <h4 className="font-medium text-stone-900 mt-6 mb-2">Animal Classes</h4>
         <NumberInput label="Bulls" value={beef.bulls} onChange={(v) => setBeef({ ...beef, bulls: v })} />
         <NumberInput label="Juvenile Bulls" value={beef.juvenileBulls} onChange={(v) => setBeef({ ...beef, juvenileBulls: v })} />
         <NumberInput label="Cows" value={beef.cows} onChange={(v) => setBeef({ ...beef, cows: v })} />
@@ -298,11 +310,11 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
         <NumberInput label="Female Calves" value={beef.femaleCalves} onChange={(v) => setBeef({ ...beef, femaleCalves: v })} />
 
         <div className="mt-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+          <label className="block text-sm font-medium text-stone-700 mb-1">Notes</label>
           <textarea
             value={beef.notes}
             onChange={(e) => setBeef({ ...beef, notes: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900"
+            className="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm text-stone-900"
             rows={2}
             placeholder="e.g. Need deworming, vaccinations pending..."
           />
@@ -310,8 +322,8 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
       </SectionCard>
 
       {/* DAIRY SECTION */}
-      <SectionCard title="Dairy Section" color="bg-blue-600">
-        <h4 className="font-medium text-gray-900 mb-2">Stock Movement</h4>
+      <SectionCard title="Dairy Section" color="bg-teal-700">
+        <h4 className="font-medium text-stone-900 mb-2">Stock Movement</h4>
         <NumberInput label="Opening Stock" value={dairy.openingStock} onChange={(v) => setDairy({ ...dairy, openingStock: v })} />
         <NumberInput label="Births" value={dairy.births} onChange={(v) => setDairy({ ...dairy, births: v })} />
         <NumberInput label="Moved In" value={dairy.movedIn} onChange={(v) => setDairy({ ...dairy, movedIn: v })} />
@@ -319,12 +331,12 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
         <NumberInput label="Sold" value={dairy.sold} onChange={(v) => setDairy({ ...dairy, sold: v })} />
         <NumberInput label="Slaughtered" value={dairy.slaughtered} onChange={(v) => setDairy({ ...dairy, slaughtered: v })} />
         <NumberInput label="Deaths" value={dairy.deaths} onChange={(v) => setDairy({ ...dairy, deaths: v })} />
-        <div className="flex items-center justify-between py-2 bg-blue-50 px-3 rounded-lg mt-2">
-          <span className="font-bold text-blue-800">Closing Stock</span>
-          <span className="text-xl font-bold text-blue-800">{dairy.closingStock}</span>
+        <div className="flex items-center justify-between py-2 bg-teal-50 px-3 rounded-lg mt-2">
+          <span className="font-bold text-teal-800">Closing Stock</span>
+          <span className="text-xl font-bold text-teal-800">{dairy.closingStock}</span>
         </div>
 
-        <h4 className="font-medium text-gray-900 mt-6 mb-2">Animal Classes</h4>
+        <h4 className="font-medium text-stone-900 mt-6 mb-2">Animal Classes</h4>
         <NumberInput label="Bulls" value={dairy.bulls} onChange={(v) => setDairy({ ...dairy, bulls: v })} />
         <NumberInput label="Juvenile Bulls" value={dairy.juvenileBulls} onChange={(v) => setDairy({ ...dairy, juvenileBulls: v })} />
         <NumberInput label="Milking Cows" value={dairy.milkingCows} onChange={(v) => setDairy({ ...dairy, milkingCows: v })} />
@@ -338,16 +350,16 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
         <NumberInput label="Male Calves" value={dairy.maleCalves} onChange={(v) => setDairy({ ...dairy, maleCalves: v })} />
         <NumberInput label="Female Calves" value={dairy.femaleCalves} onChange={(v) => setDairy({ ...dairy, femaleCalves: v })} />
 
-        <h4 className="font-medium text-gray-900 mt-6 mb-2">Dairy Production</h4>
+        <h4 className="font-medium text-stone-900 mt-6 mb-2">Dairy Production</h4>
         <NumberInput label="Total Milk Yield (Litres)" value={dairy.totalMilkYield} onChange={(v) => setDairy({ ...dairy, totalMilkYield: v })} />
         <NumberInput label="Feed Consumed (bags)" value={dairy.feedConsumedBags} onChange={(v) => setDairy({ ...dairy, feedConsumedBags: v })} />
 
         <div className="mt-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+          <label className="block text-sm font-medium text-stone-700 mb-1">Notes</label>
           <textarea
             value={dairy.notes}
             onChange={(e) => setDairy({ ...dairy, notes: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900"
+            className="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm text-stone-900"
             rows={2}
             placeholder="e.g. AI in progress, cows moved to dry due to low yield..."
           />
@@ -355,8 +367,8 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
       </SectionCard>
 
       {/* GOATS SECTION */}
-      <SectionCard title="Goats Section" color="bg-orange-600">
-        <h4 className="font-medium text-gray-900 mb-2">Stock Movement</h4>
+      <SectionCard title="Goats Section" color="bg-amber-700">
+        <h4 className="font-medium text-stone-900 mb-2">Stock Movement</h4>
         <NumberInput label="Opening Stock" value={goats.openingStock} onChange={(v) => setGoats({ ...goats, openingStock: v })} />
         <NumberInput label="Births" value={goats.births} onChange={(v) => setGoats({ ...goats, births: v })} />
         <NumberInput label="Moved In" value={goats.movedIn} onChange={(v) => setGoats({ ...goats, movedIn: v })} />
@@ -364,12 +376,12 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
         <NumberInput label="Slaughtered" value={goats.slaughtered} onChange={(v) => setGoats({ ...goats, slaughtered: v })} />
         <NumberInput label="Deaths" value={goats.deaths} onChange={(v) => setGoats({ ...goats, deaths: v })} />
         <NumberInput label="Moved Out" value={goats.movedOut} onChange={(v) => setGoats({ ...goats, movedOut: v })} />
-        <div className="flex items-center justify-between py-2 bg-orange-50 px-3 rounded-lg mt-2">
-          <span className="font-bold text-orange-800">Closing Stock</span>
-          <span className="text-xl font-bold text-orange-800">{goats.closingStock}</span>
+        <div className="flex items-center justify-between py-2 bg-amber-50 px-3 rounded-lg mt-2">
+          <span className="font-bold text-amber-800">Closing Stock</span>
+          <span className="text-xl font-bold text-amber-800">{goats.closingStock}</span>
         </div>
 
-        <h4 className="font-medium text-gray-900 mt-6 mb-2">Animal Classes</h4>
+        <h4 className="font-medium text-stone-900 mt-6 mb-2">Animal Classes</h4>
         <NumberInput label="Bucks" value={goats.bucks} onChange={(v) => setGoats({ ...goats, bucks: v })} />
         <NumberInput label="Juvenile Bucks" value={goats.juvenileBucks} onChange={(v) => setGoats({ ...goats, juvenileBucks: v })} />
         <NumberInput label="Does" value={goats.does} onChange={(v) => setGoats({ ...goats, does: v })} />
@@ -380,11 +392,11 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
         <NumberInput label="Male Kids" value={goats.maleKids} onChange={(v) => setGoats({ ...goats, maleKids: v })} />
 
         <div className="mt-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+          <label className="block text-sm font-medium text-stone-700 mb-1">Notes</label>
           <textarea
             value={goats.notes}
             onChange={(e) => setGoats({ ...goats, notes: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900"
+            className="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm text-stone-900"
             rows={2}
             placeholder="e.g. Vaccination done, new pen completed..."
           />
@@ -392,8 +404,8 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
       </SectionCard>
 
       {/* LAYERS SECTION */}
-      <SectionCard title="Layers Section" color="bg-yellow-600">
-        <h4 className="font-medium text-gray-900 mb-2">Stock Movement</h4>
+      <SectionCard title="Layers Section" color="bg-amber-500">
+        <h4 className="font-medium text-stone-900 mb-2">Stock Movement</h4>
         <NumberInput label="Opening Stock" value={layers.openingStock} onChange={(v) => setLayers({ ...layers, openingStock: v })} />
         <NumberInput label="Mortalities" value={layers.mortalities} onChange={(v) => setLayers({ ...layers, mortalities: v })} />
         <NumberInput label="Moved In" value={layers.movedIn} onChange={(v) => setLayers({ ...layers, movedIn: v })} />
@@ -402,7 +414,7 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
           <span className="text-xl font-bold text-yellow-800">{layers.closingStock}</span>
         </div>
 
-        <h4 className="font-medium text-gray-900 mt-6 mb-2">Egg Production</h4>
+        <h4 className="font-medium text-stone-900 mt-6 mb-2">Egg Production</h4>
         <NumberInput label="Total Crates Collected" value={layers.cratesCollected} onChange={(v) => setLayers({ ...layers, cratesCollected: v })} />
         <NumberInput label="Egg Trays Delivered" value={layers.eggTraysDelivered} onChange={(v) => setLayers({ ...layers, eggTraysDelivered: v })} />
         <NumberInput label="Breakages (crates)" value={layers.breakagesCrates} onChange={(v) => setLayers({ ...layers, breakagesCrates: v })} />
@@ -411,11 +423,11 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
         <NumberInput label="Feed Consumed (bags)" value={layers.feedConsumedBags} onChange={(v) => setLayers({ ...layers, feedConsumedBags: v })} />
 
         <div className="mt-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+          <label className="block text-sm font-medium text-stone-700 mb-1">Notes</label>
           <textarea
             value={layers.notes}
             onChange={(e) => setLayers({ ...layers, notes: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900"
+            className="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm text-stone-900"
             rows={2}
             placeholder="e.g. Birds in last laying phase, recommend replacement..."
           />
@@ -423,28 +435,28 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
       </SectionCard>
 
       {/* BROILERS SECTION */}
-      <SectionCard title="Broiler Section" color="bg-red-600">
-        <h4 className="font-medium text-gray-900 mb-2">Stock Movement</h4>
+      <SectionCard title="Broiler Section" color="bg-rose-800">
+        <h4 className="font-medium text-stone-900 mb-2">Stock Movement</h4>
         <NumberInput label="Opening Stock" value={broilers.openingStock} onChange={(v) => setBroilers({ ...broilers, openingStock: v })} />
         <NumberInput label="Received (day old chicks)" value={broilers.received} onChange={(v) => setBroilers({ ...broilers, received: v })} />
         <NumberInput label="Sold" value={broilers.sold} onChange={(v) => setBroilers({ ...broilers, sold: v })} />
         <NumberInput label="Deaths" value={broilers.deaths} onChange={(v) => setBroilers({ ...broilers, deaths: v })} />
-        <div className="flex items-center justify-between py-2 bg-red-50 px-3 rounded-lg mt-2">
-          <span className="font-bold text-red-800">Closing Stock</span>
-          <span className="text-xl font-bold text-red-800">{broilers.closingStock}</span>
+        <div className="flex items-center justify-between py-2 bg-rose-50 px-3 rounded-lg mt-2">
+          <span className="font-bold text-rose-800">Closing Stock</span>
+          <span className="text-xl font-bold text-rose-800">{broilers.closingStock}</span>
         </div>
 
-        <h4 className="font-medium text-gray-900 mt-6 mb-2">Feed Consumed</h4>
+        <h4 className="font-medium text-stone-900 mt-6 mb-2">Feed Consumed</h4>
         <NumberInput label="Starter (bags)" value={broilers.starterBags} onChange={(v) => setBroilers({ ...broilers, starterBags: v })} />
         <NumberInput label="Grower (bags)" value={broilers.growerBags} onChange={(v) => setBroilers({ ...broilers, growerBags: v })} />
         <NumberInput label="Finisher (bags)" value={broilers.finisherBags} onChange={(v) => setBroilers({ ...broilers, finisherBags: v })} />
 
         <div className="mt-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+          <label className="block text-sm font-medium text-stone-700 mb-1">Notes</label>
           <textarea
             value={broilers.notes}
             onChange={(e) => setBroilers({ ...broilers, notes: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900"
+            className="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm text-stone-900"
             rows={2}
             placeholder="e.g. First sales started, batch received..."
           />
@@ -456,7 +468,7 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
         <button
           type="submit"
           disabled={loading}
-          className="flex-1 bg-green-700 text-white py-4 rounded-xl font-medium text-lg hover:bg-green-800 disabled:opacity-50"
+          className="flex-1 bg-orange-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-orange-700 disabled:opacity-50"
         >
           {loading ? "Submitting..." : "Submit Census"}
         </button>

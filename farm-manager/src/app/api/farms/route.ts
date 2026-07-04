@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { requireAuth } from "@/lib/auth";
+import { requireAuth, hasActivePro, isPlatformAdmin } from "@/lib/auth";
 
 export async function GET() {
   try {
@@ -33,14 +33,11 @@ export async function POST(req: NextRequest) {
     }
 
     const farmCount = await prisma.farm.count({ where: { ownerId: user.id } });
-    if (user.role !== "platform_admin" && farmCount >= 1) {
-      const existingFarm = await prisma.farm.findFirst({ where: { ownerId: user.id } });
-      if (existingFarm?.tier === "free" || existingFarm?.tier === "basic") {
-        return NextResponse.json(
-          { error: "Upgrade to Pro to add more farms" },
-          { status: 403 }
-        );
-      }
+    if (farmCount >= 1 && !hasActivePro(user) && !isPlatformAdmin(user)) {
+      return NextResponse.json(
+        { error: "The free plan includes one farm. Upgrade to Pro to add more farms." },
+        { status: 403 }
+      );
     }
 
     const farm = await prisma.farm.create({

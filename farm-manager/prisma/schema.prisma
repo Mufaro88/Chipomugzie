@@ -8,19 +8,40 @@ datasource db {
 }
 
 model User {
-  id            String   @id @default(cuid())
+  id            String    @id @default(cuid())
   name          String
-  email         String   @unique
+  email         String    @unique
   passwordHash  String
   phone         String?
-  role          String   @default("owner") // platform_admin, owner, manager, viewer
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  role          String    @default("owner") // platform_admin, owner, manager, viewer
+  plan          String    @default("free") // free, pro
+  planExpiresAt DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   ownedFarms    Farm[]          @relation("FarmOwner")
   farmAccess    FarmAccess[]
   auditLogs     AuditLog[]
   monthlyCensus MonthlyCensus[]
+  payments      Payment[]
+}
+
+model Payment {
+  id         String   @id @default(cuid())
+  userId     String
+  plan       String // pro
+  months     Int      @default(1)
+  amountUsd  Float
+  method     String   @default("ecocash") // ecocash, onemoney, manual
+  phone      String?
+  reference  String   @unique
+  pollUrl    String?
+  status     String   @default("created") // created, sent, paid, cancelled, failed
+  paidAt     DateTime?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
 }
 
 model Farm {

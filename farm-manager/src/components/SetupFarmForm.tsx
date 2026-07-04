@@ -33,7 +33,7 @@ export function SetupFarmFormClient() {
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-gray-900"
           placeholder="e.g. Ruzambo Farm"
           required
         />
@@ -44,14 +44,14 @@ export function SetupFarmFormClient() {
           type="text"
           value={location}
           onChange={(e) => setLocation(e.target.value)}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-gray-900"
           placeholder="e.g. Mashonaland, Zimbabwe"
         />
       </div>
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-green-700 text-white py-3 rounded-lg font-medium hover:bg-green-800 disabled:opacity-50"
+        className="w-full bg-orange-600 text-white py-3 rounded-lg font-bold hover:bg-orange-700 disabled:opacity-50"
       >
         {loading ? "Creating..." : "Create Farm"}
       </button>

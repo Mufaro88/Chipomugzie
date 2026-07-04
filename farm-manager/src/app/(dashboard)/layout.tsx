@@ -1,4 +1,4 @@
-import { getSession } from "@/lib/auth";
+import { getSession, isPlatformAdmin } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/Sidebar";
 
@@ -7,8 +7,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (!user) redirect("/login");
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
-      <Sidebar userName={user.name} userRole={user.role} />
+    <div className="min-h-screen flex bg-[#FFF8F0]">
+      <Sidebar userName={user.name} userRole={user.role} isAdmin={isPlatformAdmin(user)} />
       <main className="flex-1 p-6 md:p-8 overflow-auto">{children}</main>
     </div>
   );

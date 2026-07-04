@@ -29,6 +29,19 @@ export async function getSession() {
   }
 }
 
+export function isPlatformAdmin(user: { role: string; email: string } | null) {
+  if (!user) return false;
+  const adminEmail = (process.env.PLATFORM_ADMIN_EMAIL || "buhle0888@gmail.com").toLowerCase();
+  return user.role === "platform_admin" || user.email.toLowerCase() === adminEmail;
+}
+
+export function hasActivePro(user: { plan: string; planExpiresAt: Date | null } | null) {
+  if (!user) return false;
+  if (user.plan !== "pro") return false;
+  if (!user.planExpiresAt) return true;
+  return user.planExpiresAt.getTime() > Date.now();
+}
+
 export async function requireAuth() {
   const user = await getSession();
   if (!user) {

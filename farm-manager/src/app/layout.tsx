@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Chipomugzie Farm Manager",
-  description: "Smart farm management for African farmers",
+  title: "The Farmer's Pocket Book",
+  description: "Your farm records, always with you — built for African farmers",
 };
 
 export default function RootLayout({

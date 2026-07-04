@@ -34,12 +34,12 @@ export default async function ReportsPage() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Monthly Reports — {farm.name}</h2>
+      <h2 className="text-2xl font-bold text-stone-900 mb-6">Monthly Reports — {farm.name}</h2>
 
       {farm.monthlyCensus.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm p-8 text-center text-gray-500">
+        <div className="bg-white rounded-2xl shadow-sm border border-orange-100 p-8 text-center text-stone-500">
           <p className="mb-4">No reports yet.</p>
-          <Link href="/census/new" className="text-green-700 font-medium hover:underline">
+          <Link href="/census/new" className="text-orange-700 font-medium hover:underline">
             Enter your first census
           </Link>
         </div>
@@ -49,47 +49,47 @@ export default async function ReportsPage() {
             <Link
               key={census.id}
               href={`/census/${census.id}`}
-              className="block bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow"
+              className="block bg-white rounded-2xl shadow-sm border border-orange-100 p-6 hover:shadow-md transition-shadow"
             >
               <div className="flex justify-between items-start">
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900">
+                  <h3 className="text-lg font-bold text-stone-900">
                     {MONTHS[census.month]} {census.year}
                   </h3>
-                  <p className="text-gray-500 text-sm mt-1">
+                  <p className="text-stone-500 text-sm mt-1">
                     Submitted by {census.submittedBy.name}
                   </p>
                 </div>
                 <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                   census.status === "submitted"
-                    ? "bg-blue-100 text-blue-800"
+                    ? "bg-teal-100 text-teal-900"
                     : census.status === "approved"
-                    ? "bg-green-100 text-green-800"
-                    : "bg-yellow-100 text-yellow-800"
+                    ? "bg-teal-100 text-teal-900"
+                    : "bg-amber-100 text-amber-900"
                 }`}>
                   {census.status}
                 </span>
               </div>
               <div className="mt-4 grid grid-cols-5 gap-4 text-sm">
                 <div>
-                  <p className="text-gray-500">Beef</p>
-                  <p className="font-bold text-gray-900">{census.beefSection?.closingStock ?? "—"}</p>
+                  <p className="text-stone-500">Beef</p>
+                  <p className="font-bold text-stone-900">{census.beefSection?.closingStock ?? "—"}</p>
                 </div>
                 <div>
-                  <p className="text-gray-500">Dairy</p>
-                  <p className="font-bold text-gray-900">{census.dairySection?.closingStock ?? "—"}</p>
+                  <p className="text-stone-500">Dairy</p>
+                  <p className="font-bold text-stone-900">{census.dairySection?.closingStock ?? "—"}</p>
                 </div>
                 <div>
-                  <p className="text-gray-500">Goats</p>
-                  <p className="font-bold text-gray-900">{census.goatSection?.closingStock ?? "—"}</p>
+                  <p className="text-stone-500">Goats</p>
+                  <p className="font-bold text-stone-900">{census.goatSection?.closingStock ?? "—"}</p>
                 </div>
                 <div>
-                  <p className="text-gray-500">Layers</p>
-                  <p className="font-bold text-gray-900">{census.layerSection?.closingStock ?? "—"}</p>
+                  <p className="text-stone-500">Layers</p>
+                  <p className="font-bold text-stone-900">{census.layerSection?.closingStock ?? "—"}</p>
                 </div>
                 <div>
-                  <p className="text-gray-500">Broilers</p>
-                  <p className="font-bold text-gray-900">{census.broilerSection?.closingStock ?? "—"}</p>
+                  <p className="text-stone-500">Broilers</p>
+                  <p className="font-bold text-stone-900">{census.broilerSection?.closingStock ?? "—"}</p>
                 </div>
               </div>
             </Link>

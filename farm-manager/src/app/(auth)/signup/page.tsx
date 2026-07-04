@@ -41,10 +41,10 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-800 to-green-950 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
+    <div className="min-h-screen bg-gradient-to-br from-orange-100 via-[#FFF8F0] to-amber-100 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-xl border border-orange-100 w-full max-w-md p-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-green-800">Chipomugzie</h1>
+          <h1 className="text-3xl font-bold text-stone-900">🌅 The Farmer&apos;s <span className="text-orange-700">Pocket Book</span></h1>
           <p className="text-gray-500 mt-2">Create your farm account</p>
         </div>
 
@@ -61,7 +61,7 @@ export default function SignupPage() {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-gray-900"
               placeholder="Your full name"
               required
             />
@@ -73,7 +73,7 @@ export default function SignupPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-gray-900"
               placeholder="you@example.com"
               required
             />
@@ -85,7 +85,7 @@ export default function SignupPage() {
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-gray-900"
               placeholder="+263 7X XXX XXXX"
             />
           </div>
@@ -96,7 +96,7 @@ export default function SignupPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-gray-900"
               placeholder="At least 6 characters"
               required
             />
@@ -105,7 +105,7 @@ export default function SignupPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-green-700 text-white py-3 rounded-lg font-medium hover:bg-green-800 disabled:opacity-50 transition-colors"
+            className="w-full bg-orange-600 text-white py-3 rounded-lg font-bold hover:bg-orange-700 disabled:opacity-50 transition-colors"
           >
             {loading ? "Creating account..." : "Create Account"}
           </button>
@@ -113,7 +113,7 @@ export default function SignupPage() {
 
         <p className="text-center mt-6 text-gray-500 text-sm">
           Already have an account?{" "}
-          <Link href="/login" className="text-green-700 font-medium hover:underline">
+          <Link href="/login" className="text-orange-700 font-medium hover:underline">
             Sign in
           </Link>
         </p>
