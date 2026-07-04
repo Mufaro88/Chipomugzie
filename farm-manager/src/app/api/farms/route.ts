@@ -33,11 +33,19 @@ export async function POST(req: NextRequest) {
     }
 
     const farmCount = await prisma.farm.count({ where: { ownerId: user.id } });
-    if (farmCount >= 1 && !hasActivePro(user) && !isPlatformAdmin(user)) {
-      return NextResponse.json(
-        { error: "The free plan includes one farm. Upgrade to Pro to add more farms." },
-        { status: 403 }
-      );
+    if (!isPlatformAdmin(user)) {
+      if (!hasActivePro(user) && farmCount >= 1) {
+        return NextResponse.json(
+          { error: "The free plan includes one farm. Go Pro to add more farms." },
+          { status: 403 }
+        );
+      }
+      if (hasActivePro(user) && farmCount >= 3) {
+        return NextResponse.json(
+          { error: "Pro includes up to 3 farms. Contact us if you need more." },
+          { status: 403 }
+        );
+      }
     }
 
     const farm = await prisma.farm.create({

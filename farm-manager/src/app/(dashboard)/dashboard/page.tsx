@@ -1,4 +1,4 @@
-import { getSession } from "@/lib/auth";
+import { getSession, hasActivePro } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { DashboardClient } from "@/components/DashboardClient";
@@ -16,6 +16,7 @@ export default async function DashboardPage() {
       ],
     },
     include: {
+      owner: { select: { plan: true, planExpiresAt: true } },
       monthlyCensus: {
         include: {
           beefSection: true,
@@ -36,13 +37,15 @@ export default async function DashboardPage() {
   }
 
   const farm = farms[0];
+  const ownerPro = hasActivePro(farm.owner);
   const censuses = farm.monthlyCensus;
   const latest = censuses[censuses.length - 1];
   const previous = censuses.length > 1 ? censuses[censuses.length - 2] : null;
 
   const monthNames = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-  const trendData = censuses.map((c) => ({
+  const visibleCensuses = ownerPro ? censuses : censuses.slice(-3);
+  const trendData = visibleCensuses.map((c) => ({
     label: `${monthNames[c.month]} ${c.year}`,
     beef: c.beefSection?.closingStock ?? 0,
     dairy: c.dairySection?.closingStock ?? 0,
@@ -146,7 +149,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Charts */}
-      <DashboardClient trendData={trendData} farmId={farm.id} />
+      <DashboardClient trendData={trendData} farmId={farm.id} historyLimited={!ownerPro && censuses.length > 3} />
     </div>
   );
 }

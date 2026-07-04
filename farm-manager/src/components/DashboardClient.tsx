@@ -44,9 +44,11 @@ function ChartCaption({ text }: { text: string }) {
 export function DashboardClient({
   trendData,
   farmId,
+  historyLimited,
 }: {
   trendData: TrendPoint[];
   farmId: string;
+  historyLimited?: boolean;
 }) {
   const first = trendData[0];
   const last = trendData[trendData.length - 1];
@@ -99,6 +101,15 @@ export function DashboardClient({
 
   return (
     <div className="space-y-8">
+      {historyLimited && (
+        <Link
+          href="/upgrade"
+          className="block bg-gradient-to-r from-orange-600 to-amber-500 text-white rounded-2xl p-4 text-sm font-medium hover:opacity-95"
+        >
+          🔒 You are seeing your last 3 months only. Go Pro to unlock your full farm history →
+        </Link>
+      )}
+
       {/* Livestock Trend */}
       <div className="bg-white rounded-2xl shadow-sm border border-orange-100 p-6">
         <h3 className="text-lg font-bold text-stone-900 mb-4">Livestock Trends</h3>

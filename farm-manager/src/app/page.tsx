@@ -101,9 +101,9 @@ export default async function HomePage() {
               <p className="text-sm font-medium text-stone-500 uppercase tracking-wide">Free</p>
               <p className="text-4xl font-bold mt-2 mb-6">$0</p>
               <ul className="space-y-3 text-stone-700 mb-8">
-                <li className="flex gap-3"><span className="text-orange-600">✓</span> One farm</li>
-                <li className="flex gap-3"><span className="text-orange-600">✓</span> Monthly livestock census</li>
-                <li className="flex gap-3"><span className="text-orange-600">✓</span> Charts and printable reports</li>
+                <li className="flex gap-3"><span className="text-orange-600">✓</span> One farm, two animal types</li>
+                <li className="flex gap-3"><span className="text-orange-600">✓</span> Monthly census with crops</li>
+                <li className="flex gap-3"><span className="text-orange-600">✓</span> Your last 3 monthly reports</li>
                 <li className="flex gap-3"><span className="text-orange-600">✓</span> Manager &amp; viewer access</li>
               </ul>
               <Link
@@ -120,10 +120,10 @@ export default async function HomePage() {
                 ${price}<span className="text-lg font-normal text-orange-100">/month</span>
               </p>
               <ul className="space-y-3 mb-8">
-                <li className="flex gap-3"><span>✓</span> Everything in Free</li>
-                <li className="flex gap-3"><span>✓</span> More than one farm</li>
-                <li className="flex gap-3"><span>✓</span> Spreadsheet import</li>
-                <li className="flex gap-3"><span>✓</span> Pay easily with EcoCash</li>
+                <li className="flex gap-3"><span>✓</span> All 5 animal types + crops</li>
+                <li className="flex gap-3"><span>✓</span> Money tracking (feed, wages, fuel)</li>
+                <li className="flex gap-3"><span>✓</span> Full history, every report forever</li>
+                <li className="flex gap-3"><span>✓</span> Up to 3 farms · EcoCash &amp; card</li>
               </ul>
               <Link
                 href="/signup"

@@ -1,4 +1,4 @@
-import { getSession } from "@/lib/auth";
+import { getSession, hasActivePro } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
 import Link from "next/link";
@@ -20,6 +20,7 @@ export default async function ReportsPage() {
       ],
     },
     include: {
+      owner: { select: { plan: true, planExpiresAt: true } },
       monthlyCensus: {
         include: {
           beefSection: true,
@@ -36,6 +37,7 @@ export default async function ReportsPage() {
 
   const farm = farms[0];
   if (!farm) redirect("/dashboard");
+  const ownerPro = hasActivePro(farm.owner);
 
   return (
     <div>
@@ -50,7 +52,28 @@ export default async function ReportsPage() {
         </div>
       ) : (
         <div className="grid gap-4">
-          {farm.monthlyCensus.map((census) => (
+          {farm.monthlyCensus.map((census, index) => (
+            !ownerPro && index >= 3 ? (
+              <Link
+                key={census.id}
+                href="/upgrade"
+                className="block bg-white/60 rounded-2xl shadow-sm border border-stone-200 p-6"
+              >
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h3 className="text-lg font-bold text-stone-400">
+                      🔒 {MONTHS[census.month]} {census.year}
+                    </h3>
+                    <p className="text-stone-400 text-sm mt-1">
+                      This older report is locked on the Free plan. Go Pro to open your full history.
+                    </p>
+                  </div>
+                  <span className="px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                    Go Pro to open
+                  </span>
+                </div>
+              </Link>
+            ) : (
             <Link
               key={census.id}
               href={`/census/${census.id}`}
@@ -98,6 +121,7 @@ export default async function ReportsPage() {
                 </div>
               </div>
             </Link>
+            )
           ))}
         </div>
       )}

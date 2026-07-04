@@ -1,4 +1,4 @@
-import { getSession } from "@/lib/auth";
+import { getSession, hasActivePro, isPlatformAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { redirect, notFound } from "next/navigation";
 import { PrintButton } from "@/components/PrintButton";
@@ -32,6 +32,31 @@ export default async function CensusDetailPage({ params }: { params: Promise<{ i
   });
 
   if (!census) notFound();
+
+  const owner = await prisma.user.findUnique({ where: { id: census.farm.ownerId } });
+  if (!hasActivePro(owner) && !isPlatformAdmin(user)) {
+    const newest = await prisma.monthlyCensus.findMany({
+      where: { farmId: census.farmId },
+      orderBy: [{ year: "desc" }, { month: "desc" }],
+      take: 3,
+      select: { id: true },
+    });
+    if (!newest.some((c) => c.id === census.id)) {
+      return (
+        <div className="max-w-lg mx-auto mt-20 bg-white rounded-2xl shadow-sm border border-orange-100 p-8 text-center">
+          <p className="text-4xl mb-3">🔒</p>
+          <h2 className="text-xl font-bold text-stone-900 mb-2">This report is in your locked history</h2>
+          <p className="text-stone-600 mb-6">
+            The Free plan keeps your last 3 monthly reports open. Go Pro to unlock
+            every report you have ever entered. Your data is safe and waiting.
+          </p>
+          <a href="/upgrade" className="inline-block bg-orange-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-orange-700">
+            Go Pro to unlock
+          </a>
+        </div>
+      );
+    }
+  }
 
   const lastDay = new Date(census.year, census.month, 0).getDate();
   const reportDate = `${lastDay} ${MONTHS[census.month]} ${census.year}`;

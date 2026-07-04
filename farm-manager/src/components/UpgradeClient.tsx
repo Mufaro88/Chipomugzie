@@ -11,9 +11,9 @@ const PLAN_MONTHS = [
 ];
 
 const PRO_BENEFITS = [
-  "Add more than one farm",
-  "Unlimited monthly reports and history",
-  "Spreadsheet import for fast census entry",
+  "All 5 animal types, crops and money tracking",
+  "Every report and chart, kept forever",
+  "Up to 3 farms",
   "Priority support from the Pocket Book team",
 ];
 
@@ -118,10 +118,12 @@ export function UpgradeClient({
           </thead>
           <tbody className="text-stone-700">
             {[
-              ["Farms you can own", "1 farm", "As many as you need"],
-              ["Monthly census with livestock, crops and money", "✓", "✓"],
-              ["Dashboard with charts and plain-word explanations", "✓", "✓"],
-              ["Printable and shareable reports", "✓", "✓"],
+              ["Farms you can own", "1 farm", "Up to 3 farms"],
+              ["Animal types you can track", "2 types", "All 5 types"],
+              ["Crops tracking", "✓", "✓"],
+              ["Money tracking (feed, wages, fuel)", "✗", "✓"],
+              ["Report history you can open", "Last 3 months", "Everything, forever"],
+              ["Charts", "Last 3 months", "Full history"],
               ["Invite a manager and viewers", "✓", "✓"],
               ["Spreadsheet import (Excel, paste)", "✓", "✓"],
               ["Priority support", "✗", "✓"],

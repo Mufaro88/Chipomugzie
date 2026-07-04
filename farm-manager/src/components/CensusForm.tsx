@@ -10,7 +10,16 @@ const MONTHS = [
   "July", "August", "September", "October", "November", "December",
 ];
 
-type Farm = { id: string; name: string };
+type Farm = { id: string; name: string; ownerPro: boolean };
+
+const LIVESTOCK_SECTIONS = [
+  { key: "beef", label: "Beef Cattle", icon: "🐂" },
+  { key: "dairy", label: "Dairy Cattle", icon: "🐄" },
+  { key: "goats", label: "Goats", icon: "🐐" },
+  { key: "layers", label: "Layers", icon: "🐔" },
+  { key: "broilers", label: "Broilers", icon: "🐥" },
+];
+const FREE_SECTION_LIMIT = 2;
 
 function NumberInput({
   label,
@@ -161,8 +170,36 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
 
   const [crops, setCrops] = useState<CropRow[]>([]);
   const [expenses, setExpenses] = useState<ExpenseRow[]>([]);
+  const [enabledSections, setEnabledSections] = useState<string[]>(["beef", "goats"]);
+  const [limitNote, setLimitNote] = useState("");
+
+  const currentFarm = farms.find((f) => f.id === farmId);
+  const isPro = currentFarm?.ownerPro ?? false;
+
+  useEffect(() => {
+    if (isPro) setEnabledSections(LIVESTOCK_SECTIONS.map((sec) => sec.key));
+  }, [isPro]);
+
+  function toggleSection(key: string) {
+    setLimitNote("");
+    setEnabledSections((prev) => {
+      if (prev.includes(key)) return prev.filter((k) => k !== key);
+      if (!isPro && prev.length >= FREE_SECTION_LIMIT) {
+        setLimitNote(`The Free plan tracks ${FREE_SECTION_LIMIT} animal types. Go Pro to track them all.`);
+        return prev;
+      }
+      return [...prev, key];
+    });
+  }
 
   function applyImport(values: ImportedValues) {
+    const importedSections = LIVESTOCK_SECTIONS.map((sec) => sec.key).filter(
+      (key) => Object.keys(values[key as keyof ImportedValues]).length > 0
+    );
+    setEnabledSections((prev) => {
+      const merged = [...new Set([...prev, ...importedSections])];
+      return isPro ? merged : merged.slice(0, FREE_SECTION_LIMIT);
+    });
     setBeef((prev) => ({ ...prev, ...values.beef }));
     setDairy((prev) => ({ ...prev, ...values.dairy }));
     setGoats((prev) => ({ ...prev, ...values.goats }));
@@ -210,7 +247,11 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         farmId, month, year,
-        beef, dairy, goats, layers, broilers,
+        beef: enabledSections.includes("beef") ? beef : undefined,
+        dairy: enabledSections.includes("dairy") ? dairy : undefined,
+        goats: enabledSections.includes("goats") ? goats : undefined,
+        layers: enabledSections.includes("layers") ? layers : undefined,
+        broilers: enabledSections.includes("broilers") ? broilers : undefined,
         crops: crops
           .filter((c) => c.cropName.trim())
           .map((c) => ({
@@ -299,8 +340,40 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
       {/* Spreadsheet import */}
       <ImportCensus onImport={applyImport} />
 
+      {/* What do you keep? */}
+      <div className="bg-white rounded-2xl shadow-sm border border-orange-100 p-4">
+        <p className="font-medium text-stone-900 mb-1">What do you keep on this farm?</p>
+        <p className="text-sm text-stone-500 mb-3">
+          Tap to choose. Only the animals you pick will show below.
+          {!isPro && ` The Free plan tracks ${FREE_SECTION_LIMIT} animal types.`}
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {LIVESTOCK_SECTIONS.map((sec) => (
+            <button
+              key={sec.key}
+              type="button"
+              onClick={() => toggleSection(sec.key)}
+              className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
+                enabledSections.includes(sec.key)
+                  ? "bg-orange-600 text-white border-orange-600"
+                  : "bg-white text-stone-700 border-stone-200 hover:border-orange-300"
+              }`}
+            >
+              {sec.icon} {sec.label}
+            </button>
+          ))}
+        </div>
+        {limitNote && (
+          <p className="text-sm text-amber-900 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mt-3">
+            🔒 {limitNote}{" "}
+            <a href="/upgrade" className="font-bold underline">Go Pro</a>
+          </p>
+        )}
+      </div>
+
       {/* BEEF SECTION */}
-      <SectionCard title="Beef Section" color="bg-orange-700" defaultOpen>
+      {enabledSections.includes("beef") && (
+      <SectionCard title="🐂 Beef Section" color="bg-orange-700" defaultOpen>
         <h4 className="font-medium text-stone-900 mb-2">Stock Movement</h4>
         <NumberInput label="Opening Stock" value={beef.openingStock} onChange={(v) => setBeef({ ...beef, openingStock: v })} />
         <NumberInput label="Births" value={beef.births} onChange={(v) => setBeef({ ...beef, births: v })} />
@@ -338,9 +411,11 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
           />
         </div>
       </SectionCard>
+      )}
 
       {/* DAIRY SECTION */}
-      <SectionCard title="Dairy Section" color="bg-teal-700">
+      {enabledSections.includes("dairy") && (
+      <SectionCard title="🐄 Dairy Section" color="bg-teal-700">
         <h4 className="font-medium text-stone-900 mb-2">Stock Movement</h4>
         <NumberInput label="Opening Stock" value={dairy.openingStock} onChange={(v) => setDairy({ ...dairy, openingStock: v })} />
         <NumberInput label="Births" value={dairy.births} onChange={(v) => setDairy({ ...dairy, births: v })} />
@@ -383,9 +458,11 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
           />
         </div>
       </SectionCard>
+      )}
 
       {/* GOATS SECTION */}
-      <SectionCard title="Goats Section" color="bg-amber-700">
+      {enabledSections.includes("goats") && (
+      <SectionCard title="🐐 Goats Section" color="bg-amber-700">
         <h4 className="font-medium text-stone-900 mb-2">Stock Movement</h4>
         <NumberInput label="Opening Stock" value={goats.openingStock} onChange={(v) => setGoats({ ...goats, openingStock: v })} />
         <NumberInput label="Births" value={goats.births} onChange={(v) => setGoats({ ...goats, births: v })} />
@@ -420,9 +497,11 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
           />
         </div>
       </SectionCard>
+      )}
 
       {/* LAYERS SECTION */}
-      <SectionCard title="Layers Section" color="bg-amber-500">
+      {enabledSections.includes("layers") && (
+      <SectionCard title="🐔 Layers Section" color="bg-amber-500">
         <h4 className="font-medium text-stone-900 mb-2">Stock Movement</h4>
         <NumberInput label="Opening Stock" value={layers.openingStock} onChange={(v) => setLayers({ ...layers, openingStock: v })} />
         <NumberInput label="Mortalities" value={layers.mortalities} onChange={(v) => setLayers({ ...layers, mortalities: v })} />
@@ -451,9 +530,11 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
           />
         </div>
       </SectionCard>
+      )}
 
       {/* BROILERS SECTION */}
-      <SectionCard title="Broiler Section" color="bg-rose-800">
+      {enabledSections.includes("broilers") && (
+      <SectionCard title="🐥 Broiler Section" color="bg-rose-800">
         <h4 className="font-medium text-stone-900 mb-2">Stock Movement</h4>
         <NumberInput label="Opening Stock" value={broilers.openingStock} onChange={(v) => setBroilers({ ...broilers, openingStock: v })} />
         <NumberInput label="Received (day old chicks)" value={broilers.received} onChange={(v) => setBroilers({ ...broilers, received: v })} />
@@ -480,6 +561,7 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
           />
         </div>
       </SectionCard>
+      )}
 
       {/* CROPS SECTION */}
       <SectionCard title="🌱 Crops Section" color="bg-teal-700">
@@ -487,9 +569,18 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
       </SectionCard>
 
       {/* MONEY SPENT SECTION */}
-      <SectionCard title="💵 Money Spent This Month" color="bg-stone-700">
-        <ExpensesFields rows={expenses} setRows={setExpenses} />
-      </SectionCard>
+      {isPro ? (
+        <SectionCard title="💵 Money Spent This Month" color="bg-stone-700">
+          <ExpensesFields rows={expenses} setRows={setExpenses} />
+        </SectionCard>
+      ) : (
+        <a href="/upgrade" className="block bg-white rounded-2xl shadow-sm border border-stone-200 p-5 hover:border-orange-300">
+          <p className="font-medium text-stone-500">🔒 💵 Money Spent This Month</p>
+          <p className="text-sm text-stone-400 mt-1">
+            Track feed, medicine, fuel and wages next to your production. This is a Pro feature. Tap to upgrade.
+          </p>
+        </a>
+      )}
 
       {/* Submit */}
       <div className="flex gap-4">
