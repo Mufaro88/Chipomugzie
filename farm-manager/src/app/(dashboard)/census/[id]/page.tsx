@@ -2,7 +2,7 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { redirect, notFound } from "next/navigation";
 import { PrintButton } from "@/components/PrintButton";
-import { WhatsAppShareButton } from "@/components/ShareButtons";
+import { WhatsAppShareButton, ShareLinkButton } from "@/components/ShareButtons";
 
 const MONTHS = [
   "", "January", "February", "March", "April", "May", "June",
@@ -52,6 +52,7 @@ export default async function CensusDetailPage({ params }: { params: Promise<{ i
               census.dairySection?.totalMilkYield ? `🥛 Milk this month: ${census.dairySection.totalMilkYield.toLocaleString()} litres` : "",
             ].filter(Boolean).join("\n")}
           />
+          <ShareLinkButton censusId={census.id} />
           <PrintButton />
         </div>
       </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -9,6 +9,12 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
+  const [referralCode, setReferralCode] = useState("");
+
+  useEffect(() => {
+    const invite = new URLSearchParams(window.location.search).get("invite");
+    if (invite) setReferralCode(invite);
+  }, []);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -27,7 +33,7 @@ export default function SignupPage() {
     const res = await fetch("/api/auth/signup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password, phone: phone || undefined }),
+      body: JSON.stringify({ name, email, password, phone: phone || undefined, referralCode: referralCode || undefined }),
     });
 
     const data = await res.json();
@@ -45,7 +51,7 @@ export default function SignupPage() {
       <div className="bg-white rounded-2xl shadow-xl border border-orange-100 w-full max-w-md p-8">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-stone-900">🌅 The Farmer&apos;s <span className="text-orange-700">Pocket Book</span></h1>
-          <p className="text-gray-500 mt-2">Create your farm account</p>
+          <p className="text-gray-500 mt-2">Create your farm account — free Pro trial included</p>
         </div>
 
         {error && (
@@ -101,6 +107,21 @@ export default function SignupPage() {
               required
             />
           </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Invite code (optional)</label>
+            <input
+              type="text"
+              value={referralCode}
+              onChange={(e) => setReferralCode(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-gray-900"
+              placeholder="From a friend? Both of you get a free Pro month"
+            />
+          </div>
+
+          <p className="text-xs text-teal-800 bg-teal-50 border border-teal-100 rounded-lg px-3 py-2">
+            🎁 Every new account starts with a free 14-day Pro trial — a full month with an invite code.
+          </p>
 
           <button
             type="submit"

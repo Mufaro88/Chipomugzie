@@ -16,6 +16,8 @@ model User {
   role          String    @default("owner") // platform_admin, owner, manager, viewer
   plan          String    @default("free") // free, pro
   planExpiresAt DateTime?
+  referralCode  String?   @unique
+  referredById  String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -78,8 +80,9 @@ model MonthlyCensus {
   userId    String
   month     Int
   year      Int
-  status    String   @default("draft") // draft, submitted, approved
-  notes     String?
+  status     String   @default("draft") // draft, submitted, approved
+  shareToken String?  @unique
+  notes      String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

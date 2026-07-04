@@ -22,11 +22,13 @@ export function UpgradeClient({
   paymentsLive,
   isPro,
   proExpiresAt,
+  referralCode,
 }: {
   pricePerMonth: number;
   paymentsLive: boolean;
   isPro: boolean;
   proExpiresAt: string | null;
+  referralCode: string;
 }) {
   const router = useRouter();
   const [months, setMonths] = useState(1);
@@ -195,6 +197,32 @@ export function UpgradeClient({
               </button>
             </>
           )}
+        </div>
+      </div>
+
+      {/* Referral card */}
+      <div className="bg-white rounded-2xl shadow-sm border border-teal-100 p-6 mt-8">
+        <h3 className="font-bold text-stone-900 mb-1">🎁 Give a month, get a month</h3>
+        <p className="text-sm text-stone-600 mb-4">
+          Invite a farming friend with your code. When they sign up with it, you BOTH
+          get a free month of Pro. No limit — invite ten friends, get ten months.
+        </p>
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="font-mono text-lg font-bold bg-teal-50 border border-teal-200 text-teal-900 rounded-lg px-4 py-2 tracking-wider">
+            {referralCode}
+          </span>
+          <button
+            type="button"
+            onClick={() => {
+              const text = encodeURIComponent(
+                `I keep my farm records on The Farmer's Pocket Book 🌅 — livestock, crops, money, all in one place with monthly charts.\n\nSign up free here: ${window.location.origin}/signup?invite=${referralCode}\n\nUse my invite code ${referralCode} and we both get a free month of Pro!`
+              );
+              window.open(`https://wa.me/?text=${text}`, "_blank");
+            }}
+            className="bg-[#25D366] text-white px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90"
+          >
+            Invite on WhatsApp
+          </button>
         </div>
       </div>
     </div>
