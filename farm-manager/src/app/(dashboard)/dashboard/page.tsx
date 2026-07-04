@@ -9,7 +9,12 @@ export default async function DashboardPage() {
   if (!user) redirect("/login");
 
   const farms = await prisma.farm.findMany({
-    where: { ownerId: user.id },
+    where: {
+      OR: [
+        { ownerId: user.id },
+        { farmAccess: { some: { userId: user.id } } },
+      ],
+    },
     include: {
       monthlyCensus: {
         include: {

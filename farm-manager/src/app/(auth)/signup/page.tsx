@@ -11,9 +11,14 @@ export default function SignupPage() {
   const [phone, setPhone] = useState("");
   const [referralCode, setReferralCode] = useState("");
 
+  const [joinCode, setJoinCode] = useState("");
+
   useEffect(() => {
-    const invite = new URLSearchParams(window.location.search).get("invite");
+    const params = new URLSearchParams(window.location.search);
+    const invite = params.get("invite");
     if (invite) setReferralCode(invite);
+    const join = params.get("join");
+    if (join) setJoinCode(join);
   }, []);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -33,7 +38,7 @@ export default function SignupPage() {
     const res = await fetch("/api/auth/signup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password, phone: phone || undefined, referralCode: referralCode || undefined }),
+      body: JSON.stringify({ name, email, password, phone: phone || undefined, referralCode: referralCode || undefined, joinCode: joinCode || undefined }),
     });
 
     const data = await res.json();
@@ -53,6 +58,12 @@ export default function SignupPage() {
           <h1 className="text-3xl font-bold text-stone-900">🌅 The Farmer&apos;s <span className="text-orange-700">Pocket Book</span></h1>
           <p className="text-gray-500 mt-2">Create your farm account with a free Pro trial included</p>
         </div>
+
+        {joinCode && (
+          <div className="bg-teal-50 border border-teal-200 text-teal-900 p-3 rounded-lg mb-4 text-sm">
+            🌾 You have been invited to join a farm. Create your account and you will be connected automatically.
+          </div>
+        )}
 
         {error && (
           <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-4 text-sm">

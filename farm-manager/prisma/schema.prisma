@@ -60,6 +60,7 @@ model Farm {
   farmAccess    FarmAccess[]
   monthlyCensus MonthlyCensus[]
   auditLogs     AuditLog[]
+  invites       FarmInvite[]
 }
 
 model FarmAccess {
@@ -256,6 +257,18 @@ model Expense {
   amountUsd   Float  @default(0)
 
   census MonthlyCensus @relation(fields: [censusId], references: [id], onDelete: Cascade)
+}
+
+model FarmInvite {
+  id        String    @id @default(cuid())
+  farmId    String
+  role      String    @default("manager") // manager, viewer
+  code      String    @unique
+  createdAt DateTime  @default(now())
+  usedById  String?
+  usedAt    DateTime?
+
+  farm Farm @relation(fields: [farmId], references: [id], onDelete: Cascade)
 }
 
 model Feedback {

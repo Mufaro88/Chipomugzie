@@ -23,12 +23,14 @@ export function UpgradeClient({
   isPro,
   proExpiresAt,
   referralCode,
+  cardPaymentLink,
 }: {
   pricePerMonth: number;
   paymentsLive: boolean;
   isPro: boolean;
   proExpiresAt: string | null;
   referralCode: string;
+  cardPaymentLink: string | null;
 }) {
   const router = useRouter();
   const [months, setMonths] = useState(1);
@@ -102,6 +104,37 @@ export function UpgradeClient({
           )}
         </div>
       )}
+
+      {/* What you get: Free vs Pro */}
+      <div className="bg-white rounded-2xl shadow-sm border border-orange-100 p-6 mb-8 overflow-x-auto">
+        <h3 className="font-bold text-stone-900 mb-4">What do I get on each plan?</h3>
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-left text-xs text-stone-500 uppercase tracking-wide border-b border-stone-100">
+              <th className="py-2 pr-4"></th>
+              <th className="py-2 pr-4">Free</th>
+              <th className="py-2 text-orange-700">Pro</th>
+            </tr>
+          </thead>
+          <tbody className="text-stone-700">
+            {[
+              ["Farms you can own", "1 farm", "As many as you need"],
+              ["Monthly census with livestock, crops and money", "✓", "✓"],
+              ["Dashboard with charts and plain-word explanations", "✓", "✓"],
+              ["Printable and shareable reports", "✓", "✓"],
+              ["Invite a manager and viewers", "✓", "✓"],
+              ["Spreadsheet import (Excel, paste)", "✓", "✓"],
+              ["Priority support", "✗", "✓"],
+            ].map(([label, free, pro]) => (
+              <tr key={label} className="border-b border-stone-50 last:border-0">
+                <td className="py-2 pr-4">{label}</td>
+                <td className={`py-2 pr-4 ${free === "✗" ? "text-stone-300" : ""}`}>{free}</td>
+                <td className="py-2 font-medium">{pro}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-orange-100 overflow-hidden">
         <div className="bg-gradient-to-r from-orange-600 to-amber-500 text-white p-6">
@@ -195,6 +228,17 @@ export function UpgradeClient({
                     ? `Pay $${total} with EcoCash`
                     : `Request Pro ($${total})`}
               </button>
+
+              {cardPaymentLink && (
+                <a
+                  href={cardPaymentLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full text-center mt-3 border border-stone-300 text-stone-700 py-3 rounded-xl font-medium hover:bg-stone-50"
+                >
+                  💳 Pay by bank card instead
+                </a>
+              )}
             </>
           )}
         </div>

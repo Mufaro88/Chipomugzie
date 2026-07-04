@@ -8,6 +8,7 @@ const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: "🏠" },
   { href: "/census/new", label: "New Census", icon: "📝" },
   { href: "/farms", label: "My Farms", icon: "🌾" },
+  { href: "/team", label: "My Team", icon: "👥" },
   { href: "/reports", label: "Reports", icon: "📈" },
   { href: "/upgrade", label: "Go Pro", icon: "⭐" },
   { href: "/contact", label: "Contact Us", icon: "💬" },
@@ -17,10 +18,12 @@ export function Sidebar({
   userName,
   userRole,
   isAdmin,
+  planLabel,
 }: {
   userName: string;
   userRole: string;
   isAdmin?: boolean;
+  planLabel?: string;
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -82,6 +85,18 @@ export function Sidebar({
           <div className="text-sm mb-2">
             <p className="font-medium">{userName}</p>
             <p className="text-stone-400 text-xs capitalize">{userRole}</p>
+            {planLabel && (
+              <Link
+                href="/upgrade"
+                className={`inline-block mt-2 text-xs font-medium rounded-full px-3 py-1 ${
+                  planLabel.startsWith("Pro")
+                    ? "bg-orange-500/20 text-orange-300"
+                    : "bg-stone-700 text-stone-300 hover:bg-stone-600"
+                }`}
+              >
+                {planLabel}
+              </Link>
+            )}
           </div>
           <button
             onClick={handleLogout}

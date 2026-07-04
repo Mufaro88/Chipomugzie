@@ -12,7 +12,7 @@ function makeReferralCode(name: string) {
 }
 
 export async function POST(req: NextRequest) {
-  const { name, email, password, phone, referralCode } = await req.json();
+  const { name, email, password, phone, referralCode, joinCode } = await req.json();
 
   if (!name || !email || !password) {
     return NextResponse.json({ error: "Name, email and password are required" }, { status: 400 });
@@ -33,6 +33,11 @@ export async function POST(req: NextRequest) {
   }
   const trialDays = referrer ? REFERRAL_BONUS_DAYS : TRIAL_DAYS;
 
+  const invite = joinCode
+    ? await prisma.farmInvite.findUnique({ where: { code: String(joinCode) } })
+    : null;
+  const joiningFarm = invite && !invite.usedById ? invite : null;
+
   const passwordHash = await bcrypt.hash(password, 12);
   const user = await prisma.user.create({
     data: {
@@ -40,13 +45,23 @@ export async function POST(req: NextRequest) {
       email,
       passwordHash,
       phone,
-      role: "owner",
+      role: joiningFarm ? joiningFarm.role : "owner",
       plan: "pro",
       planExpiresAt: new Date(Date.now() + trialDays * 24 * 60 * 60 * 1000),
       referralCode: makeReferralCode(name),
       referredById: referrer?.id ?? null,
     },
   });
+
+  if (joiningFarm) {
+    await prisma.farmAccess.create({
+      data: { userId: user.id, farmId: joiningFarm.farmId, role: joiningFarm.role },
+    });
+    await prisma.farmInvite.update({
+      where: { id: joiningFarm.id },
+      data: { usedById: user.id, usedAt: new Date() },
+    });
+  }
 
   if (referrer) {
     const now = Date.now();

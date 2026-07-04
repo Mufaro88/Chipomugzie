@@ -23,6 +23,7 @@ export default async function UpgradePage() {
       isPro={hasActivePro(user)}
       proExpiresAt={user.planExpiresAt ? user.planExpiresAt.toISOString() : null}
       referralCode={referralCode}
+      cardPaymentLink={process.env.CARD_PAYMENT_LINK || null}
     />
   );
 }

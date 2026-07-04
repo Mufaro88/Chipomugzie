@@ -8,7 +8,12 @@ export default async function NewCensusPage() {
   if (!user) redirect("/login");
 
   const farms = await prisma.farm.findMany({
-    where: { ownerId: user.id },
+    where: {
+      OR: [
+        { ownerId: user.id },
+        { farmAccess: { some: { userId: user.id, role: "manager" } } },
+      ],
+    },
   });
 
   if (farms.length === 0) {
@@ -17,7 +22,7 @@ export default async function NewCensusPage() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">New Monthly Census</h2>
+      <h2 className="text-2xl font-bold text-stone-900 mb-6">New Monthly Census</h2>
       <CensusForm farms={farms.map((f) => ({ id: f.id, name: f.name }))} />
     </div>
   );
