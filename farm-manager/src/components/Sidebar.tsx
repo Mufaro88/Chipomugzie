@@ -9,6 +9,7 @@ const navItems = [
   { href: "/census/new", label: "New Census", icon: "📝" },
   { href: "/farms", label: "My Farms", icon: "🌾" },
   { href: "/team", label: "My Team", icon: "👥" },
+  { href: "/money", label: "Money Book", icon: "💰" },
   { href: "/reports", label: "Reports", icon: "📈" },
   { href: "/upgrade", label: "Go Pro", icon: "⭐" },
   { href: "/contact", label: "Contact Us", icon: "💬" },

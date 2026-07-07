@@ -31,7 +31,7 @@ const FIELD_MAP: Record<SectionKey, Record<string, string>> = {
     bulls: "bulls", juvenilebulls: "juvenileBulls", cows: "cows",
     bullingheifers: "bullingHeifers", weanerheifers: "weanerHeifers",
     feedersteers: "feederSteers", weanersteers: "weanerSteers",
-    weanermalecalves: "weanerMaleCalves", calfsteers: "calfSteers",
+    weanermalecalves: "weanerMaleCalves", weanermalecalve: "weanerMaleCalves", calfsteers: "calfSteers",
     malecalves: "maleCaves", femalecalves: "femaleCalves",
   },
   dairy: {
@@ -40,7 +40,7 @@ const FIELD_MAP: Record<SectionKey, Record<string, string>> = {
     bulls: "bulls", juvenilebulls: "juvenileBulls", milkingcows: "milkingCows", drycows: "dryCows",
     bullingheifers: "bullingHeifers", weanerheifers: "weanerHeifers",
     feedersteers: "feederSteers", weanersteers: "weanerSteers",
-    weanermalecalves: "weanerMaleCalves", calfsteers: "calfSteers",
+    weanermalecalves: "weanerMaleCalves", weanermalecalve: "weanerMaleCalves", calfsteers: "calfSteers",
     malecalves: "maleCalves", femalecalves: "femaleCalves",
     totalmilkyield: "totalMilkYield", totalmilkyieldlitres: "totalMilkYield", milkyield: "totalMilkYield",
     feedconsumed: "feedConsumedBags", feedconsumedbags: "feedConsumedBags",
@@ -48,13 +48,15 @@ const FIELD_MAP: Record<SectionKey, Record<string, string>> = {
   goats: {
     openingstock: "openingStock", births: "births", movedin: "movedIn", movedout: "movedOut",
     sold: "sold", slaughtered: "slaughtered", deaths: "deaths",
+    soldmovedout: "sold", movedoutsold: "sold",
     bucks: "bucks", juvenilebucks: "juvenileBucks", does: "does", maidendoes: "maidenDoes",
     castratedweaners: "castratedWeaners", castratedmalekids: "castratedMaleKids",
     femalekids: "femaleKids", malekids: "maleKids",
   },
   layers: {
-    openingstock: "openingStock", mortalities: "mortalities", deaths: "mortalities", movedin: "movedIn",
+    openingstock: "openingStock", mortalities: "mortalities", mortality: "mortalities", deaths: "mortalities", movedin: "movedIn",
     totalcratescollected: "cratesCollected", cratescollected: "cratesCollected",
+    totalcratescollectd: "cratesCollected", cratescollectd: "cratesCollected",
     eggtraysdelivered: "eggTraysDelivered", traysdelivered: "eggTraysDelivered",
     breakages: "breakagesCrates", breakagescrates: "breakagesCrates",
     binned: "binnedCrates", binnedcrates: "binnedCrates",
@@ -64,7 +66,7 @@ const FIELD_MAP: Record<SectionKey, Record<string, string>> = {
   },
   broilers: {
     openingstock: "openingStock", received: "received", receiveddayoldchicks: "received",
-    sold: "sold", deaths: "deaths",
+    sold: "sold", deaths: "deaths", mortalities: "deaths", mortality: "deaths",
     starter: "starterBags", starterbags: "starterBags",
     grower: "growerBags", growerbags: "growerBags",
     finisher: "finisherBags", finisherbags: "finisherBags",
@@ -95,6 +97,11 @@ const TEMPLATE_ROWS: [string, string][] = [
   ["Broilers", "Opening Stock"], ["Broilers", "Received (day old chicks)"], ["Broilers", "Sold"],
   ["Broilers", "Deaths"], ["Broilers", "Starter (bags)"], ["Broilers", "Grower (bags)"], ["Broilers", "Finisher (bags)"],
 ];
+
+// Lines the app computes itself; never flag them as unrecognized.
+const SKIP_LABELS = new Set([
+  "closingstock", "total", "animalclasses", "totalcratescollected",
+]);
 
 function normalize(s: string) {
   return s.toLowerCase().replace(/[^a-z0-9%]/g, "");
@@ -146,7 +153,9 @@ function parseRows(rows: (string | number | null | undefined)[][]) {
       continue;
     }
 
-    const field = FIELD_MAP[section][normalize(label)];
+    const key = normalize(label);
+    if (key === "closingstock" || key === "total" || key === "animalclasses") continue;
+    const field = FIELD_MAP[section][key];
     if (!field) {
       unknown.push(label);
       continue;
@@ -212,6 +221,9 @@ export function ImportCensus({ onImport }: { onImport: (values: ImportedValues) 
         if (line.includes(",")) return line.split(",");
         const match = line.trim().match(/^(.*?)[\s:]+(-?[\d,]+\.?\d*)\s*%?$/);
         if (match) return [match[1], match[2]];
+        // handles lines like "Castrated male kids10" with no space before the number
+        const tight = line.trim().match(/^([A-Za-z][A-Za-z\s()\/%-]*?)(\d+\.?\d*)\s*%?$/);
+        if (tight) return [tight[1], tight[2]];
         return [line.trim()];
       });
     finish(parseRows(rows));

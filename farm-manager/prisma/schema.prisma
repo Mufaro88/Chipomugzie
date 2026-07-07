@@ -61,6 +61,7 @@ model Farm {
   monthlyCensus MonthlyCensus[]
   auditLogs     AuditLog[]
   invites       FarmInvite[]
+  moneyMonths   MoneyMonth[]
 }
 
 model FarmAccess {
@@ -257,6 +258,20 @@ model Expense {
   amountUsd   Float  @default(0)
 
   census MonthlyCensus @relation(fields: [censusId], references: [id], onDelete: Cascade)
+}
+
+model MoneyMonth {
+  id         String @id @default(cuid())
+  farmId     String
+  month      Int
+  year       Int
+  enterprise String // dairy, layers, broilers, cattle, goats, abattoir, horticulture, other, general, capital
+  salesUsd   Float  @default(0)
+  costsUsd   Float  @default(0)
+
+  farm Farm @relation(fields: [farmId], references: [id], onDelete: Cascade)
+
+  @@unique([farmId, month, year, enterprise])
 }
 
 model FarmInvite {
