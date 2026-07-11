@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { redirect, notFound } from "next/navigation";
 import { PrintButton } from "@/components/PrintButton";
 import { WhatsAppShareButton, ShareLinkButton } from "@/components/ShareButtons";
+import { ReportCharts } from "@/components/ReportCharts";
 
 const MONTHS = [
   "", "January", "February", "March", "April", "May", "June",
@@ -61,6 +62,46 @@ export default async function CensusDetailPage({ params }: { params: Promise<{ i
   const lastDay = new Date(census.year, census.month, 0).getDate();
   const reportDate = `${lastDay} ${MONTHS[census.month]} ${census.year}`;
 
+  // Money for the same month, if the Money Book has it.
+  const money = await prisma.moneyMonth.findMany({
+    where: { farmId: census.farmId, month: census.month, year: census.year },
+  });
+  const moneyIn = money.map((m) => ({ name: m.enterprise, value: Math.round(m.salesUsd) }));
+  const moneyOut = money.map((m) => ({ name: m.enterprise, value: Math.round(m.costsUsd) }));
+  const totalIn = money.reduce((sum, m) => sum + m.salesUsd, 0);
+  const totalOut = money.reduce((sum, m) => sum + m.costsUsd, 0);
+  const profit = totalIn - totalOut;
+  const bestEarner = [...money].sort((a, b) => b.salesUsd - a.salesUsd)[0];
+  const bigCost = [...money].sort((a, b) => b.costsUsd - a.costsUsd)[0];
+
+  // A written summary in plain words, like a person reporting to the owner.
+  const totalDeaths =
+    (census.beefSection?.deaths ?? 0) + (census.dairySection?.deaths ?? 0) +
+    (census.goatSection?.deaths ?? 0) + (census.layerSection?.mortalities ?? 0) +
+    (census.broilerSection?.deaths ?? 0);
+  const herdParts: string[] = [];
+  if (census.beefSection) herdParts.push(`${census.beefSection.closingStock} beef cattle`);
+  if (census.dairySection) herdParts.push(`${census.dairySection.closingStock} dairy cattle`);
+  if (census.goatSection) herdParts.push(`${census.goatSection.closingStock} goats`);
+  if (census.layerSection) herdParts.push(`${census.layerSection.closingStock.toLocaleString()} layers`);
+  if (census.broilerSection?.closingStock) herdParts.push(`${census.broilerSection.closingStock.toLocaleString()} broilers`);
+
+  let summary = `At the end of ${MONTHS[census.month]} ${census.year}, ${census.farm.name} was keeping ${herdParts.join(", ") || "no recorded livestock"}. `;
+  summary += totalDeaths > 0
+    ? `A total of ${totalDeaths} animals and birds died during the month. `
+    : `No deaths were recorded this month. `;
+  if (census.dairySection?.totalMilkYield) summary += `The dairy produced ${census.dairySection.totalMilkYield.toLocaleString()} litres of milk. `;
+  if (census.layerSection?.cratesCollected) summary += `The layers gave ${census.layerSection.cratesCollected.toLocaleString()} crates of eggs, laying at ${census.layerSection.averageLayingPct}%. `;
+  if (census.cropActivities.length) summary += `In the fields: ${census.cropActivities.map((c) => `${c.cropName} (${c.activity})`).join("; ")}. `;
+  if (money.length) {
+    summary += `On the money side, the farm GAINED $${Math.round(totalIn).toLocaleString()} and SPENT $${Math.round(totalOut).toLocaleString()}, `;
+    summary += profit >= 0
+      ? `making a PROFIT of $${Math.round(profit).toLocaleString()} for the month. `
+      : `making a LOSS of $${Math.round(Math.abs(profit)).toLocaleString()} for the month. `;
+    if (bestEarner && bestEarner.salesUsd > 0) summary += `The biggest money maker was ${bestEarner.enterprise}. `;
+    if (bigCost && bigCost.costsUsd > 0) summary += `The biggest cost was ${bigCost.enterprise}. `;
+  }
+
   return (
     <div className="max-w-3xl mx-auto">
       <div className="flex justify-between items-center mb-6 print:hidden">
@@ -88,6 +129,31 @@ export default async function CensusDetailPage({ params }: { params: Promise<{ i
           <h1 className="text-2xl font-bold text-gray-900">{census.farm.name}</h1>
           <h2 className="text-lg text-gray-600">Monthly Report, {reportDate}</h2>
         </div>
+
+        {/* Written summary */}
+        <div className="mb-8 bg-orange-50 border border-orange-100 rounded-xl p-5">
+          <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-2">Monthly Summary</h3>
+          <p className="text-sm text-gray-800 leading-relaxed">{summary}</p>
+        </div>
+
+        {/* Differences flagged at submission */}
+        {census.flags && (
+          <div className="mb-8 bg-amber-50 border border-amber-300 rounded-xl p-5">
+            <h3 className="text-sm font-bold text-amber-900 uppercase tracking-wide mb-2">⚠️ Differences to review</h3>
+            <p className="text-sm text-amber-900">{census.flags}</p>
+            <p className="text-sm text-gray-800 mt-2">
+              <strong>Explanation from {census.submittedBy.name}:</strong>{" "}
+              {census.flagNote || "No explanation was written."}
+            </p>
+          </div>
+        )}
+
+        {/* Money charts */}
+        {money.length > 0 && (
+          <div className="mb-8">
+            <ReportCharts moneyIn={moneyIn} moneyOut={moneyOut} />
+          </div>
+        )}
 
         {/* Beef Section */}
         {census.beefSection && (

@@ -41,7 +41,7 @@ export async function POST(req: Request) {
     try {
       const { value: text } = await mammoth.extractRawText({ buffer });
       const result = parseRows(textToRows(text));
-      if (result.imported > 0) return censusResponse(result, "Word document");
+      if (result.imported > 0 || result.cropLines.length > 0) return censusResponse(result, "Word document");
       return NextResponse.json({
         kind: "unknown",
         message:
@@ -135,5 +135,6 @@ function censusResponse(result: ParseResult, source: string) {
     values: result.values,
     imported: result.imported,
     unknown: result.unknown,
+    cropLines: result.cropLines,
   });
 }

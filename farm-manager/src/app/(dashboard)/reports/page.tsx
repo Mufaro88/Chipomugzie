@@ -83,6 +83,7 @@ export default async function ReportsPage() {
                 <div>
                   <h3 className="text-lg font-bold text-stone-900">
                     {MONTHS[census.month]} {census.year}
+                    {census.flags && <span className="ml-2 text-sm font-normal text-amber-700">⚠️ has differences to review</span>}
                   </h3>
                   <p className="text-stone-500 text-sm mt-1">
                     Submitted by {census.submittedBy.name}

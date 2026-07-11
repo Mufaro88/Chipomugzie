@@ -98,18 +98,46 @@ export function normalize(s: string) {
   return s.toLowerCase().replace(/[^a-z0-9%]/g, "");
 }
 
-export type ParseResult = { values: ImportedValues; imported: number; unknown: string[] };
+export type ParseResult = { values: ImportedValues; imported: number; unknown: string[]; cropLines: string[] };
+
+const CROP_HEADERS = new Set([
+  "crops", "crop", "cropssection", "cropsection", "fieldcrops", "fieldcropsactivities",
+  "fieldcropactivities", "horticulture", "hortcrops", "horticultureandcrops", "cropsactivities",
+]);
+const STOP_HEADERS = new Set(["workshop", "workinprogress", "generalexpenses", "capitalexpenses"]);
 
 export function parseRows(rows: (string | number | null | undefined)[][]): ParseResult {
   const values: ImportedValues = { beef: {}, dairy: {}, goats: {}, layers: {}, broilers: {} };
   let currentSection: SectionKey | null = null;
+  let inCrops = false;
   let imported = 0;
   const unknown: string[] = [];
+  const cropLines: string[] = [];
 
   for (const rawRow of rows) {
     const cells = Array.from(rawRow, (c) => (c === null || c === undefined ? "" : String(c).trim()));
     while (cells.length && cells[cells.length - 1] === "") cells.pop();
     if (cells.length === 0) continue;
+
+    const headKey = normalize(cells[0]);
+    if (CROP_HEADERS.has(headKey)) {
+      inCrops = true;
+      currentSection = null;
+      continue;
+    }
+    if (STOP_HEADERS.has(headKey)) {
+      inCrops = false;
+      currentSection = null;
+      continue;
+    }
+    if (SECTION_ALIASES[headKey]) inCrops = false;
+
+    // Crop activities are free text lines, kept as written.
+    if (inCrops) {
+      const line = cells.join(" ").trim();
+      if (line) cropLines.push(line);
+      continue;
+    }
 
     // A row that is just a section name switches the current section.
     if (cells.length === 1) {
@@ -156,7 +184,7 @@ export function parseRows(rows: (string | number | null | undefined)[][]): Parse
     currentSection = section;
   }
 
-  return { values, imported, unknown };
+  return { values, imported, unknown, cropLines };
 }
 
 // Splits free text (WhatsApp reports, Word documents, .txt) into label/number rows.

@@ -24,7 +24,7 @@ export function downloadTemplate() {
   XLSX.writeFile(wb, "pocket-book-census-template.xlsx");
 }
 
-export function ImportCensus({ onImport }: { onImport: (values: ImportedValues) => void }) {
+export function ImportCensus({ onImport }: { onImport: (values: ImportedValues, cropLines?: string[]) => void }) {
   const [open, setOpen] = useState(false);
   const [pasteText, setPasteText] = useState("");
   const [busy, setBusy] = useState(false);
@@ -32,20 +32,21 @@ export function ImportCensus({ onImport }: { onImport: (values: ImportedValues) 
   const fileRef = useRef<HTMLInputElement>(null);
 
   function finish(result: ParseResult) {
-    if (result.imported === 0) {
+    if (result.imported === 0 && result.cropLines.length === 0) {
       setMessage({
         kind: "warn",
         text: "No numbers were recognized. Use the template, or lines like: Beef Opening Stock 390",
       });
       return;
     }
-    onImport(result.values);
+    onImport(result.values, result.cropLines);
     const skipped = result.unknown.length
       ? ` (${result.unknown.length} line${result.unknown.length > 1 ? "s" : ""} not recognized: ${result.unknown.slice(0, 3).join(", ")}${result.unknown.length > 3 ? "…" : ""})`
       : "";
+    const cropNote = result.cropLines.length ? ` Also found ${result.cropLines.length} crop activities.` : "";
     setMessage({
       kind: "ok",
-      text: `Filled in ${result.imported} numbers below. Scroll down to check them, then submit.${skipped}`,
+      text: `Filled in ${result.imported} numbers below.${cropNote} Scroll down to check them, then submit.${skipped}`,
     });
     setPasteText("");
   }
@@ -63,7 +64,7 @@ export function ImportCensus({ onImport }: { onImport: (values: ImportedValues) 
       if (!res.ok) {
         setMessage({ kind: "warn", text: data.error || "That file could not be read." });
       } else if (data.kind === "census") {
-        finish({ values: data.values, imported: data.imported, unknown: data.unknown ?? [] });
+        finish({ values: data.values, imported: data.imported, unknown: data.unknown ?? [], cropLines: data.cropLines ?? [] });
       } else if (data.kind === "farmbook") {
         setMessage({
           kind: "ok",

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ImportCensus, type ImportedValues } from "./ImportCensus";
-import { CropsFields, ExpensesFields, type CropRow, type ExpenseRow } from "./CropsExpenses";
+import { CropsFields, type CropRow } from "./CropsExpenses";
 
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",
@@ -169,7 +169,6 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
   }, [farmId, month, year]);
 
   const [crops, setCrops] = useState<CropRow[]>([]);
-  const [expenses, setExpenses] = useState<ExpenseRow[]>([]);
   const [enabledSections, setEnabledSections] = useState<string[]>(["beef", "goats"]);
   const [limitNote, setLimitNote] = useState("");
 
@@ -192,7 +191,15 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
     });
   }
 
-  function applyImport(values: ImportedValues) {
+  const [flagNote, setFlagNote] = useState("");
+
+  function applyImport(values: ImportedValues, cropLines?: string[]) {
+    if (cropLines && cropLines.length) {
+      setCrops(cropLines.map((line) => {
+        const words = line.split(/\s+/);
+        return { cropName: words[0] ?? "Crop", hectares: "", activity: words.slice(1).join(" ") || line };
+      }));
+    }
     const importedSections = LIVESTOCK_SECTIONS.map((sec) => sec.key).filter(
       (key) => Object.keys(values[key as keyof ImportedValues]).length > 0
     );
@@ -207,46 +214,37 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
     setBroilers((prev) => ({ ...prev, ...values.broilers }));
   }
 
+  // Differences are flagged, never blocked: the numbers go through and the
+  // owner sees them together with the submitter's explanation.
+  const beefClassTotal = beef.bulls + beef.juvenileBulls + beef.cows + beef.bullingHeifers +
+    beef.weanerHeifers + beef.feederSteers + beef.weanerSteers + beef.weanerMaleCalves +
+    beef.calfSteers + beef.maleCaves + beef.femaleCalves;
+  const dairyClassTotal = dairy.bulls + dairy.juvenileBulls + dairy.milkingCows + dairy.dryCows +
+    dairy.bullingHeifers + dairy.weanerHeifers + dairy.feederSteers + dairy.weanerSteers +
+    dairy.weanerMaleCalves + dairy.calfSteers + dairy.maleCalves + dairy.femaleCalves;
+  const goatClassTotal = goats.bucks + goats.juvenileBucks + goats.does + goats.maidenDoes +
+    goats.castratedWeaners + goats.castratedMaleKids + goats.femaleKids + goats.maleKids;
+
+  const mismatches: string[] = [];
+  if (enabledSections.includes("beef") && beefClassTotal > 0 && beefClassTotal !== beef.closingStock)
+    mismatches.push(`Beef: the animal classes add up to ${beefClassTotal}, but the closing stock is ${beef.closingStock}`);
+  if (enabledSections.includes("dairy") && dairyClassTotal > 0 && dairyClassTotal !== dairy.closingStock)
+    mismatches.push(`Dairy: the animal classes add up to ${dairyClassTotal}, but the closing stock is ${dairy.closingStock}`);
+  if (enabledSections.includes("goats") && goatClassTotal > 0 && goatClassTotal !== goats.closingStock)
+    mismatches.push(`Goats: the animal classes add up to ${goatClassTotal}, but the closing stock is ${goats.closingStock}`);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError("");
-
-    // Validate class totals match closing stock
-    const beefClassTotal = beef.bulls + beef.juvenileBulls + beef.cows + beef.bullingHeifers +
-      beef.weanerHeifers + beef.feederSteers + beef.weanerSteers + beef.weanerMaleCalves +
-      beef.calfSteers + beef.maleCaves + beef.femaleCalves;
-
-    if (beefClassTotal > 0 && beefClassTotal !== beef.closingStock) {
-      setError(`Beef class total (${beefClassTotal}) does not match closing stock (${beef.closingStock})`);
-      setLoading(false);
-      return;
-    }
-
-    const dairyClassTotal = dairy.bulls + dairy.juvenileBulls + dairy.milkingCows + dairy.dryCows +
-      dairy.bullingHeifers + dairy.weanerHeifers + dairy.feederSteers + dairy.weanerSteers +
-      dairy.weanerMaleCalves + dairy.calfSteers + dairy.maleCalves + dairy.femaleCalves;
-
-    if (dairyClassTotal > 0 && dairyClassTotal !== dairy.closingStock) {
-      setError(`Dairy class total (${dairyClassTotal}) does not match closing stock (${dairy.closingStock})`);
-      setLoading(false);
-      return;
-    }
-
-    const goatClassTotal = goats.bucks + goats.juvenileBucks + goats.does + goats.maidenDoes +
-      goats.castratedWeaners + goats.castratedMaleKids + goats.femaleKids + goats.maleKids;
-
-    if (goatClassTotal > 0 && goatClassTotal !== goats.closingStock) {
-      setError(`Goat class total (${goatClassTotal}) does not match closing stock (${goats.closingStock})`);
-      setLoading(false);
-      return;
-    }
 
     const res = await fetch("/api/census", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         farmId, month, year,
+        flags: mismatches.length ? mismatches.join(" | ") : undefined,
+        flagNote: mismatches.length && flagNote.trim() ? flagNote.trim() : undefined,
         beef: enabledSections.includes("beef") ? beef : undefined,
         dairy: enabledSections.includes("dairy") ? dairy : undefined,
         goats: enabledSections.includes("goats") ? goats : undefined,
@@ -258,13 +256,6 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
             cropName: c.cropName.trim(),
             hectares: parseFloat(c.hectares) || null,
             activity: c.activity.trim() || ", ",
-          })),
-        expenses: expenses
-          .filter((e) => e.description.trim() || parseFloat(e.amountUsd) > 0)
-          .map((e) => ({
-            category: e.category,
-            description: e.description.trim() || ", ",
-            amountUsd: parseFloat(e.amountUsd) || 0,
           })),
       }),
     });
@@ -285,6 +276,12 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
       <div className="max-w-2xl mx-auto mt-10 bg-teal-50 text-teal-900 p-8 rounded-xl text-center">
         <div className="text-4xl mb-4">&#x2705;</div>
         <h3 className="text-xl font-bold">Census Submitted</h3>
+        {mismatches.length > 0 && (
+          <p className="mt-2 text-sm text-amber-900 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2 text-left">
+            ⚠️ It was submitted with {mismatches.length} difference{mismatches.length > 1 ? "s" : ""} in the numbers.
+            The owner will see {flagNote.trim() ? "them together with your explanation." : "them. You did not write an explanation."}
+          </p>
+        )}
         <p className="mt-2">Redirecting to dashboard...</p>
       </div>
     );
@@ -568,18 +565,34 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
         <CropsFields rows={crops} setRows={setCrops} />
       </SectionCard>
 
-      {/* MONEY SPENT SECTION */}
-      {isPro ? (
-        <SectionCard title="💵 Money Spent This Month" color="bg-stone-700">
-          <ExpensesFields rows={expenses} setRows={setExpenses} />
-        </SectionCard>
-      ) : (
-        <a href="/upgrade" className="block bg-white rounded-2xl shadow-sm border border-stone-200 p-5 hover:border-orange-300">
-          <p className="font-medium text-stone-500">🔒 💵 Money Spent This Month</p>
-          <p className="text-sm text-stone-400 mt-1">
-            Track feed, medicine, fuel and wages next to your production. This is a Pro feature. Tap to upgrade.
+      {/* Money lives in the Money Book */}
+      <a href="/money" className="block bg-white rounded-2xl shadow-sm border border-stone-200 p-5 hover:border-orange-300">
+        <p className="font-medium text-stone-700">💰 Money spent and money gained</p>
+        <p className="text-sm text-stone-400 mt-1">
+          All money now lives in the Money Book page, handled by the owner or the
+          Farm Administrator. Tap to open it.
+        </p>
+      </a>
+
+      {/* Differences to explain */}
+      {mismatches.length > 0 && (
+        <div className="bg-amber-50 border border-amber-300 rounded-2xl p-5">
+          <p className="font-bold text-amber-900 mb-2">⚠️ The numbers do not agree</p>
+          <ul className="text-sm text-amber-900 list-disc pl-5 space-y-1 mb-3">
+            {mismatches.map((m) => <li key={m}>{m}</li>)}
+          </ul>
+          <p className="text-sm text-stone-700 mb-2">
+            You can still submit. The owner will see these differences, so please
+            explain them in your own words:
           </p>
-        </a>
+          <textarea
+            value={flagNote}
+            onChange={(e) => setFlagNote(e.target.value)}
+            rows={2}
+            placeholder="e.g. Two calves were counted at the dip tank but not yet classed..."
+            className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm bg-white"
+          />
+        </div>
       )}
 
       {/* Submit */}

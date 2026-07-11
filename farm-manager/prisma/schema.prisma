@@ -84,6 +84,8 @@ model MonthlyCensus {
   year      Int
   status     String   @default("draft") // draft, submitted, approved
   shareToken String?  @unique
+  flags      String? // auto-detected differences, e.g. class totals not matching
+  flagNote   String? // the submitter's explanation for the owner
   notes      String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

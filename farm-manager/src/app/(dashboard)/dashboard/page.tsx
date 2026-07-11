@@ -19,6 +19,7 @@ export default async function DashboardPage() {
       owner: { select: { plan: true, planExpiresAt: true } },
       monthlyCensus: {
         include: {
+          submittedBy: { select: { name: true } },
           beefSection: true,
           dairySection: true,
           goatSection: true,
@@ -124,6 +125,13 @@ export default async function DashboardPage() {
             : `${farm.name}. No census yet.`}
         </p>
       </div>
+
+      {latest?.flags && (
+        <a href={`/census/${latest.id}`} className="block bg-amber-50 border border-amber-300 rounded-2xl p-4 mb-6 text-sm text-amber-900 hover:border-amber-400">
+          ⚠️ <strong>The latest census was submitted with differences in the numbers.</strong>{" "}
+          Tap to see them and the explanation from {latest.submittedBy?.name ?? "the submitter"}.
+        </a>
+      )}
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
