@@ -84,7 +84,7 @@ export async function POST(req: Request) {
       // Store it against the user's farm when the plan allows.
       const farm = await prisma.farm.findFirst({
         where: {
-          OR: [{ ownerId: user.id }, { farmAccess: { some: { userId: user.id, role: "manager" } } }],
+          OR: [{ ownerId: user.id }, { farmAccess: { some: { userId: user.id, role: "admin" } } }],
         },
         include: { owner: { select: { plan: true, planExpiresAt: true } } },
       });

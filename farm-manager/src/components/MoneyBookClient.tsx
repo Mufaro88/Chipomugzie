@@ -99,10 +99,21 @@ export function MoneyBookClient() {
     : [];
 
   let caption = "";
-  if (chartData.length >= 2) {
+  if (chartData.length >= 1) {
     const last = chartData[chartData.length - 1];
-    const profitMonths = chartData.filter((m) => m.moneyIn > m.moneyOut).length;
-    caption = `Over these ${chartData.length} months, the farm made more than it spent in ${profitMonths} of them. Last month (${last.label}): $${last.moneyIn.toLocaleString()} came in and $${last.moneyOut.toLocaleString()} went out.`;
+    const profit = last.moneyIn - last.moneyOut;
+    const earner = latestRows.filter((r) => r.salesUsd > 0).sort((a, b) => b.salesUsd - a.salesUsd)[0];
+    const spender = latestRows.filter((r) => r.costsUsd > 0).sort((a, b) => b.costsUsd - a.costsUsd)[0];
+    caption =
+      `${last.label}: the farm GAINED $${last.moneyIn.toLocaleString()} and SPENT $${last.moneyOut.toLocaleString()}, ` +
+      (profit >= 0
+        ? `so it made a PROFIT of $${profit.toLocaleString()}. `
+        : `so it made a LOSS of $${Math.abs(profit).toLocaleString()}. `) +
+      (earner ? `The biggest money maker was ${earner.enterprise} ($${Math.round(earner.salesUsd).toLocaleString()} gained). ` : "") +
+      (spender ? `The biggest cost was ${spender.enterprise} ($${Math.round(spender.costsUsd).toLocaleString()} spent). ` : "") +
+      (chartData.length >= 2
+        ? `Over these ${chartData.length} months, the farm made a profit in ${chartData.filter((m) => m.moneyIn > m.moneyOut).length} of them.`
+        : "");
   }
 
   return (
@@ -112,6 +123,18 @@ export function MoneyBookClient() {
         <p className="text-stone-500">
           Upload your monthly farm book. The app reads it, adds up every sale and
           every cost, and shows the trends.
+        </p>
+      </div>
+
+      <div className="bg-teal-50 border border-teal-100 rounded-2xl p-5 mb-8 text-sm text-stone-700 leading-relaxed">
+        <p className="font-bold text-stone-900 mb-1">How to read this page 🧮</p>
+        <p>
+          <strong className="text-teal-800">Money In</strong> is money the farm <strong>GAINED</strong> this
+          month: milk sold, eggs sold, animals sold, produce sold.{" "}
+          <strong className="text-orange-800">Money Out</strong> is money the farm <strong>SPENT</strong>:
+          feed, medicine, fuel, wages and repairs. When Money In is bigger than Money
+          Out, the farm made a <strong>profit</strong>. When Money Out is bigger, the farm made a{" "}
+          <strong>loss</strong> that month.
         </p>
       </div>
 
@@ -160,8 +183,8 @@ export function MoneyBookClient() {
                 <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip />
                 <Legend />
-                <Bar isAnimationActive={false} dataKey="moneyIn" fill="#009E73" name="Money In" />
-                <Bar isAnimationActive={false} dataKey="moneyOut" fill="#D55E00" name="Money Out" />
+                <Bar isAnimationActive={false} dataKey="moneyIn" fill="#009E73" name="Money Gained" />
+                <Bar isAnimationActive={false} dataKey="moneyOut" fill="#D55E00" name="Money Spent" />
               </BarChart>
             </ResponsiveContainer>
             {caption && (
@@ -180,9 +203,9 @@ export function MoneyBookClient() {
                 <thead>
                   <tr className="text-left text-xs text-stone-500 uppercase tracking-wide border-b border-stone-100">
                     <th className="py-2">Enterprise</th>
-                    <th className="py-2 text-right">Money in</th>
-                    <th className="py-2 text-right">Money out</th>
-                    <th className="py-2 text-right">Kept</th>
+                    <th className="py-2 text-right">Gained (in)</th>
+                    <th className="py-2 text-right">Spent (out)</th>
+                    <th className="py-2 text-right">Profit / Loss</th>
                   </tr>
                 </thead>
                 <tbody>

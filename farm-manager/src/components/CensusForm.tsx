@@ -583,6 +583,11 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
       )}
 
       {/* Submit */}
+      {error && (
+        <div ref={(el) => el?.scrollIntoView({ behavior: "smooth", block: "center" })} className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl text-sm">
+          ⚠️ {error}
+        </div>
+      )}
       <div className="flex gap-4">
         <button
           type="submit"

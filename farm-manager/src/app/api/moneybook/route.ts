@@ -8,7 +8,7 @@ async function usableFarm(userId: string) {
     where: {
       OR: [
         { ownerId: userId },
-        { farmAccess: { some: { userId, role: "manager" } } },
+        { farmAccess: { some: { userId, role: "admin" } } },
       ],
     },
     include: { owner: { select: { plan: true, planExpiresAt: true } } },

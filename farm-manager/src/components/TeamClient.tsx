@@ -18,7 +18,8 @@ type TeamFarm = {
 
 const ROLE_HELP = [
   { role: "Owner", icon: "👑", text: "That is you. Sees everything, invites people, and approves changes." },
-  { role: "Manager", icon: "🧑‍🌾", text: "Enters the monthly numbers and can see the dashboard. Cannot invite people." },
+  { role: "Manager", icon: "🧑‍🌾", text: "Enters the monthly animal and crop numbers. Cannot invite people." },
+  { role: "Farm Administrator", icon: "🧮", text: "Handles the finances: uploads the monthly money book and sees the Money Book page." },
   { role: "Viewer", icon: "👀", text: "Can only look at dashboards and reports. Cannot change anything. Good for family, partners, or the bank." },
 ];
 
@@ -63,7 +64,9 @@ export function TeamClient() {
 
   function whatsAppInvite(url: string, role: string, farmName: string) {
     const text = encodeURIComponent(
-      role === "manager"
+      role === "admin"
+        ? `Hi! I want you to handle the finances for ${farmName} on The Farmer's Pocket Book 🌅. Open this link, create your account, and you can upload the monthly money book: ${url}`
+        : role === "manager"
         ? `Hi! I want you to enter the monthly farm numbers for ${farmName} on The Farmer's Pocket Book 🌅. Open this link, create your account, and you are in: ${url}`
         : `Hi! I want to show you how ${farmName} is doing. Open this link, create a free account, and you can see the farm dashboard and reports: ${url}`
     );
@@ -111,7 +114,7 @@ export function TeamClient() {
                 <div key={member.id} className="flex items-center justify-between py-2 border-b border-stone-100">
                   <div>
                     <p className="font-medium text-stone-900">
-                      {member.role === "manager" ? "🧑‍🌾" : "👀"} {member.user.name}
+                      {member.role === "manager" ? "🧑‍🌾" : member.role === "admin" ? "🧮" : "👀"} {member.user.name}
                     </p>
                     <p className="text-xs text-stone-400">
                       {member.user.email}
@@ -120,7 +123,7 @@ export function TeamClient() {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-xs bg-teal-100 text-teal-900 rounded-full px-3 py-1 font-medium capitalize">
-                      {member.role}
+                      {member.role === "admin" ? "Farm Administrator" : member.role}
                     </span>
                     <button
                       onClick={() => remove({ accessId: member.id })}
@@ -147,6 +150,13 @@ export function TeamClient() {
                   className="bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-700 disabled:opacity-50"
                 >
                   🧑‍🌾 Invite a Manager
+                </button>
+                <button
+                  onClick={() => invite(farm.id, "admin")}
+                  disabled={busy}
+                  className="bg-teal-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-teal-800 disabled:opacity-50"
+                >
+                  🧮 Invite a Farm Administrator
                 </button>
                 <button
                   onClick={() => invite(farm.id, "viewer")}

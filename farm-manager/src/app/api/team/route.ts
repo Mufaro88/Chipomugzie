@@ -27,7 +27,7 @@ export async function POST(req: Request) {
 
   const body = await req.json().catch(() => ({}));
   const { farmId, role } = body as { farmId?: string; role?: string };
-  if (!farmId || !["manager", "viewer"].includes(role ?? "")) {
+  if (!farmId || !["manager", "viewer", "admin"].includes(role ?? "")) {
     return NextResponse.json({ error: "Choose a farm and a role" }, { status: 400 });
   }
 

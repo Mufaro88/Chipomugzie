@@ -67,6 +67,7 @@ export async function POST(req: NextRequest) {
         userId: user.id,
         month,
         year,
+        status: "submitted",
         notes,
         beefSection: beef ? { create: { ...beef } } : undefined,
         dairySection: dairy ? { create: { ...dairy } } : undefined,
