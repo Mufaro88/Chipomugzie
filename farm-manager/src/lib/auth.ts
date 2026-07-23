@@ -3,7 +3,7 @@ import { prisma } from "./db";
 import { SignJWT, jwtVerify } from "jose";
 
 const SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "chipomugzie-farm-secret-change-in-production"
+  process.env.JWT_SECRET || "pocketbook-farm-secret-change-in-production"
 );
 
 export async function createToken(userId: string) {
