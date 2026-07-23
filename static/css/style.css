@@ -1,0 +1,247 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #f0f4f3;
+    color: #2d3436;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+    width: 100%;
+}
+
+/* Header */
+header {
+    background: linear-gradient(135deg, #00b894, #6c5ce7);
+    color: #fff;
+    padding: 40px 0 30px;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 2.4rem;
+    letter-spacing: 1px;
+}
+
+.tagline {
+    margin-top: 6px;
+    font-size: 1.05rem;
+    opacity: 0.9;
+}
+
+/* Search */
+.search-section {
+    margin: 30px 0 20px;
+}
+
+.search-bar {
+    display: flex;
+    gap: 10px;
+}
+
+.search-bar input[type="text"] {
+    flex: 1;
+    padding: 14px 18px;
+    font-size: 1rem;
+    border: 2px solid #dfe6e9;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.search-bar input[type="text"]:focus {
+    border-color: #00b894;
+}
+
+.search-bar button {
+    padding: 14px 30px;
+    font-size: 1rem;
+    background: #00b894;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.search-bar button:hover {
+    background: #00a381;
+}
+
+.search-bar button:disabled {
+    background: #b2bec3;
+    cursor: not-allowed;
+}
+
+.filters {
+    display: flex;
+    gap: 24px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+}
+
+.filters label {
+    font-size: 0.92rem;
+    color: #636e72;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.filters input,
+.filters select {
+    padding: 6px 10px;
+    border: 1px solid #dfe6e9;
+    border-radius: 6px;
+    font-size: 0.92rem;
+}
+
+/* Status */
+.status {
+    text-align: center;
+    padding: 18px;
+    font-size: 1rem;
+    color: #636e72;
+}
+
+.status.hidden {
+    display: none;
+}
+
+.status.error {
+    color: #d63031;
+}
+
+.spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #dfe6e9;
+    border-top-color: #00b894;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 8px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Results Grid */
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+    padding-bottom: 40px;
+}
+
+.product-card {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+}
+
+.product-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: contain;
+    background: #fafafa;
+    padding: 10px;
+}
+
+.product-card .no-img {
+    width: 100%;
+    height: 200px;
+    background: #dfe6e9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #b2bec3;
+    font-size: 0.9rem;
+}
+
+.product-info {
+    padding: 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-info h3 {
+    font-size: 0.95rem;
+    line-height: 1.4;
+    margin-bottom: 10px;
+    flex: 1;
+}
+
+.product-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.price {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #00b894;
+}
+
+.source {
+    font-size: 0.8rem;
+    background: #dfe6e9;
+    padding: 3px 10px;
+    border-radius: 20px;
+    color: #636e72;
+}
+
+.product-card a.view-btn {
+    display: block;
+    text-align: center;
+    padding: 10px;
+    background: #6c5ce7;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+}
+
+.product-card a.view-btn:hover {
+    background: #5a4bd1;
+}
+
+/* Footer */
+footer {
+    margin-top: auto;
+    text-align: center;
+    padding: 20px 0;
+    color: #b2bec3;
+    font-size: 0.85rem;
+}
+
+@media (max-width: 600px) {
+    header h1 { font-size: 1.7rem; }
+    .search-bar { flex-direction: column; }
+    .results-grid { grid-template-columns: 1fr; }
+}
