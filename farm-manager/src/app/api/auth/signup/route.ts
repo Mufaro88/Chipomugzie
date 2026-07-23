@@ -23,6 +23,25 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Email already registered" }, { status: 400 });
   }
 
+  const invite = joinCode
+    ? await prisma.farmInvite.findUnique({ where: { code: String(joinCode) } })
+    : null;
+  const joiningFarm = invite && !invite.usedById ? invite : null;
+
+  // While testing with a small group, only allowlisted emails (or people
+  // using a farm invite link) can create an account. Leave
+  // SIGNUP_ALLOWLIST unset once ready to open sign-ups to everyone.
+  const allowlist = (process.env.SIGNUP_ALLOWLIST || "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+  if (allowlist.length > 0 && !joiningFarm && !allowlist.includes(String(email).toLowerCase())) {
+    return NextResponse.json(
+      { error: "Sign-ups are limited to invited testers right now. Ask the founder for access." },
+      { status: 403 }
+    );
+  }
+
   // Everyone starts with a free Pro trial; a valid invite code stretches it
   // to a full month and rewards the inviter with an extra month too.
   let referrer = null;
@@ -32,11 +51,6 @@ export async function POST(req: NextRequest) {
     });
   }
   const trialDays = referrer ? REFERRAL_BONUS_DAYS : TRIAL_DAYS;
-
-  const invite = joinCode
-    ? await prisma.farmInvite.findUnique({ where: { code: String(joinCode) } })
-    : null;
-  const joiningFarm = invite && !invite.usedById ? invite : null;
 
   const passwordHash = await bcrypt.hash(password, 12);
   const user = await prisma.user.create({
