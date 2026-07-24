@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import { proPriceUsd } from "@/lib/paynow";
 import { redirect } from "next/navigation";
+import { LandingPreview } from "@/components/LandingPreview";
 
 const FEATURES = [
   {
@@ -76,6 +77,15 @@ export default async function HomePage() {
               Start Your Pocket Book for Free
             </Link>
           </div>
+        </section>
+
+        {/* Live preview */}
+        <section className="max-w-6xl mx-auto px-6 pb-12">
+          <div className="text-center mb-8">
+            <h3 className="text-2xl font-bold">See what you get</h3>
+            <p className="text-stone-600 mt-1">A real monthly report, the way it looks on your phone.</p>
+          </div>
+          <LandingPreview />
         </section>
 
         {/* Features */}
