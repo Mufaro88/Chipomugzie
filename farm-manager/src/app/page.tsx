@@ -88,6 +88,57 @@ export default async function HomePage() {
           <LandingPreview />
         </section>
 
+        {/* Real farmer */}
+        <section className="bg-orange-50 py-16">
+          <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="col-span-2 rounded-2xl overflow-hidden bg-orange-100 aspect-[4/3] shadow-sm">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/murimi-mukuru.jpg"
+                  alt="Murimi Mukuru in her dairy parlour"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="rounded-2xl overflow-hidden bg-orange-100 aspect-square shadow-sm">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/murimi-team.jpg"
+                  alt="Murimi Mukuru with her farm team"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="rounded-2xl bg-white border border-orange-100 shadow-sm flex flex-col justify-center p-4">
+                <p className="text-3xl font-bold text-orange-700">20+</p>
+                <p className="text-sm text-stone-600 leading-snug">years keeping farm records, now in her pocket.</p>
+              </div>
+            </div>
+            <div>
+              <p className="inline-block bg-white text-orange-800 px-3 py-1 rounded-full text-xs font-medium mb-4 border border-orange-200">
+                A real farmer, a real farm
+              </p>
+              <h3 className="text-3xl font-bold leading-tight mb-4">
+                Meet Murimi Mukuru
+              </h3>
+              <p className="text-lg text-stone-700 leading-relaxed mb-4">
+                Murimi Mukuru has run her dairy and horticulture farm for over twenty years, with
+                the numbers kept in notebooks. Now every count, every litre of milk and every
+                dollar lives in one place she can open on her phone.
+              </p>
+              <p className="text-stone-600 leading-relaxed mb-6">
+                Her managers upload the month&apos;s records, the app works out the totals, and she
+                sees exactly what happened on the farm at a glance. No more lost books.
+              </p>
+              <Link
+                href="/signup"
+                className="inline-block bg-orange-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-orange-700 transition-colors"
+              >
+                Keep your farm like Murimi Mukuru
+              </Link>
+            </div>
+          </div>
+        </section>
+
         {/* Features */}
         <section className="bg-gradient-to-b from-[#FFF8F0] to-orange-50 py-16">
           <div className="max-w-6xl mx-auto px-6 grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
