@@ -25,6 +25,7 @@ export default async function DashboardPage() {
           goatSection: true,
           layerSection: true,
           broilerSection: true,
+          customEntries: { include: { section: true } },
         },
         orderBy: [{ year: "asc" }, { month: "asc" }],
       },
@@ -64,6 +65,17 @@ export default async function DashboardPage() {
     const pct = Math.round(((c - p) / p) * 100);
     return { value: Math.abs(pct), direction: pct > 0 ? "up" as const : pct < 0 ? "down" as const : "same" as const };
   }
+
+  // Cards for the types this farmer added themselves, e.g. pigs or horses.
+  const customCards = (latest?.customEntries ?? []).map((entry) => {
+    const prev = previous?.customEntries.find((e) => e.sectionId === entry.sectionId);
+    return {
+      title: entry.section.name,
+      icon: entry.section.icon,
+      value: entry.closingStock,
+      change: change(entry.closingStock, prev?.closingStock),
+    };
+  });
 
   const summaryCards = [
     {
@@ -135,7 +147,7 @@ export default async function DashboardPage() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
-        {summaryCards.map((card) => (
+        {[...summaryCards, ...customCards].map((card) => (
           <div
             key={card.title}
             className="bg-white rounded-2xl shadow-sm border border-orange-100 p-4"

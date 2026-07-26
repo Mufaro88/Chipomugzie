@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ImportCensus, type ImportedValues } from "./ImportCensus";
 import { CropsFields, type CropRow } from "./CropsExpenses";
+import { AddTypeDialog, type CustomSection } from "./AddTypeDialog";
 
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",
@@ -20,6 +21,31 @@ const LIVESTOCK_SECTIONS = [
   { key: "broilers", label: "Broilers", icon: "🐥" },
 ];
 const FREE_SECTION_LIMIT = 2;
+
+// Values for one type the farmer added themselves.
+type CustomValues = {
+  openingStock: number;
+  births: number;
+  movedIn: number;
+  movedOut: number;
+  sold: number;
+  slaughtered: number;
+  deaths: number;
+  notes: string;
+  classCounts: Record<string, number>;
+};
+
+const EMPTY_CUSTOM: CustomValues = {
+  openingStock: 0, births: 0, movedIn: 0, movedOut: 0,
+  sold: 0, slaughtered: 0, deaths: 0, notes: "", classCounts: {},
+};
+
+function customClosing(v: CustomValues) {
+  return Math.max(
+    0,
+    v.openingStock + v.births + v.movedIn - v.movedOut - v.sold - v.slaughtered - v.deaths
+  );
+}
 
 function NumberInput({
   label,
@@ -163,6 +189,15 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
           setGoats((prev) => ({ ...prev, openingStock: cf.goatOpening }));
           setLayers((prev) => ({ ...prev, openingStock: cf.layerOpening }));
           setBroilers((prev) => ({ ...prev, openingStock: cf.broilerOpening }));
+          if (cf.customOpening) {
+            setCustomValues((prev) => {
+              const next = { ...prev };
+              for (const [sectionId, opening] of Object.entries(cf.customOpening as Record<string, number>)) {
+                next[sectionId] = { ...(next[sectionId] ?? EMPTY_CUSTOM), openingStock: opening };
+              }
+              return next;
+            });
+          }
         }
       })
       .catch(() => {});
@@ -172,12 +207,62 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
   const [enabledSections, setEnabledSections] = useState<string[]>(["beef", "goats"]);
   const [limitNote, setLimitNote] = useState("");
 
+  // Types the farmer added themselves, e.g. pigs or horses.
+  const [customSections, setCustomSections] = useState<CustomSection[]>([]);
+  const [customValues, setCustomValues] = useState<Record<string, CustomValues>>({});
+
   const currentFarm = farms.find((f) => f.id === farmId);
   const isPro = currentFarm?.ownerPro ?? false;
 
   useEffect(() => {
     if (isPro) setEnabledSections(LIVESTOCK_SECTIONS.map((sec) => sec.key));
   }, [isPro]);
+
+  useEffect(() => {
+    if (!farmId) return;
+    fetch(`/api/sections?farmId=${farmId}`)
+      .then((r) => r.json())
+      .then((data) => setCustomSections(data.sections ?? []))
+      .catch(() => {});
+  }, [farmId]);
+
+  function getCustom(sectionId: string): CustomValues {
+    return customValues[sectionId] ?? EMPTY_CUSTOM;
+  }
+
+  function setCustom(sectionId: string, patch: Partial<CustomValues>) {
+    setCustomValues((prev) => ({
+      ...prev,
+      [sectionId]: { ...(prev[sectionId] ?? EMPTY_CUSTOM), ...patch },
+    }));
+  }
+
+  function setCustomClass(sectionId: string, classId: string, count: number) {
+    setCustomValues((prev) => {
+      const current = prev[sectionId] ?? EMPTY_CUSTOM;
+      return {
+        ...prev,
+        [sectionId]: {
+          ...current,
+          classCounts: { ...current.classCounts, [classId]: count },
+        },
+      };
+    });
+  }
+
+  function handleTypeAdded(section: CustomSection) {
+    setCustomSections((prev) => [...prev, section]);
+    const key = `custom:${section.id}`;
+    setLimitNote("");
+    setEnabledSections((prev) => {
+      if (prev.includes(key)) return prev;
+      if (!isPro && prev.length >= FREE_SECTION_LIMIT) {
+        setLimitNote(`The Free plan tracks ${FREE_SECTION_LIMIT} animal types. Go Pro to track them all.`);
+        return prev;
+      }
+      return [...prev, key];
+    });
+  }
 
   function toggleSection(key: string) {
     setLimitNote("");
@@ -233,6 +318,21 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
   if (enabledSections.includes("goats") && goatClassTotal > 0 && goatClassTotal !== goats.closingStock)
     mismatches.push(`Goats: the animal classes add up to ${goatClassTotal}, but the closing stock is ${goats.closingStock}`);
 
+  for (const section of customSections) {
+    if (!enabledSections.includes(`custom:${section.id}`)) continue;
+    const values = getCustom(section.id);
+    const classTotal = section.classes.reduce(
+      (sum, cls) => sum + (values.classCounts[cls.id] ?? 0),
+      0
+    );
+    const closing = customClosing(values);
+    if (classTotal > 0 && classTotal !== closing) {
+      mismatches.push(
+        `${section.name}: the groups add up to ${classTotal}, but the closing stock is ${closing}`
+      );
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
@@ -257,6 +357,27 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
             hectares: parseFloat(c.hectares) || null,
             activity: c.activity.trim() || ", ",
           })),
+        customEntries: customSections
+          .filter((s) => enabledSections.includes(`custom:${s.id}`))
+          .map((s) => {
+            const values = getCustom(s.id);
+            return {
+              sectionId: s.id,
+              openingStock: values.openingStock,
+              births: values.births,
+              movedIn: values.movedIn,
+              movedOut: values.movedOut,
+              sold: values.sold,
+              slaughtered: values.slaughtered,
+              deaths: values.deaths,
+              closingStock: customClosing(values),
+              notes: values.notes.trim() || null,
+              classCounts: s.classes.map((cls) => ({
+                classId: cls.id,
+                count: values.classCounts[cls.id] ?? 0,
+              })),
+            };
+          }),
       }),
     });
 
@@ -359,6 +480,30 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
               {sec.icon} {sec.label}
             </button>
           ))}
+          {customSections.map((sec) => (
+            <button
+              key={sec.id}
+              type="button"
+              onClick={() => toggleSection(`custom:${sec.id}`)}
+              className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
+                enabledSections.includes(`custom:${sec.id}`)
+                  ? "bg-orange-600 text-white border-orange-600"
+                  : "bg-white text-stone-700 border-stone-200 hover:border-orange-300"
+              }`}
+            >
+              {sec.icon} {sec.name}
+            </button>
+          ))}
+          {farmId && (
+            <AddTypeDialog
+              farmId={farmId}
+              existingNames={[
+                ...LIVESTOCK_SECTIONS.map((s) => s.label),
+                ...customSections.map((s) => s.name),
+              ]}
+              onAdded={handleTypeAdded}
+            />
+          )}
         </div>
         {limitNote && (
           <p className="text-sm text-amber-900 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mt-3">
@@ -559,6 +704,55 @@ export function CensusForm({ farms }: { farms: Farm[] }) {
         </div>
       </SectionCard>
       )}
+
+      {/* TYPES THE FARMER ADDED */}
+      {customSections
+        .filter((sec) => enabledSections.includes(`custom:${sec.id}`))
+        .map((sec) => {
+          const values = getCustom(sec.id);
+          const closing = customClosing(values);
+          return (
+            <SectionCard key={sec.id} title={`${sec.icon} ${sec.name}`} color="bg-stone-700">
+              <h4 className="font-medium text-stone-900 mb-2">Stock Movement</h4>
+              <NumberInput label="Opening Stock" value={values.openingStock} onChange={(v) => setCustom(sec.id, { openingStock: v })} />
+              <NumberInput label="Births" value={values.births} onChange={(v) => setCustom(sec.id, { births: v })} />
+              <NumberInput label="Moved In" value={values.movedIn} onChange={(v) => setCustom(sec.id, { movedIn: v })} />
+              <NumberInput label="Moved Out" value={values.movedOut} onChange={(v) => setCustom(sec.id, { movedOut: v })} />
+              <NumberInput label="Sold" value={values.sold} onChange={(v) => setCustom(sec.id, { sold: v })} />
+              <NumberInput label="Slaughtered" value={values.slaughtered} onChange={(v) => setCustom(sec.id, { slaughtered: v })} />
+              <NumberInput label="Deaths" value={values.deaths} onChange={(v) => setCustom(sec.id, { deaths: v })} />
+              <div className="flex items-center justify-between py-2 bg-stone-100 px-3 rounded-lg mt-2">
+                <span className="font-bold text-stone-800">Closing Stock</span>
+                <span className="text-xl font-bold text-stone-800">{closing}</span>
+              </div>
+
+              {sec.classes.length > 0 && (
+                <>
+                  <h4 className="font-medium text-stone-900 mt-6 mb-2">Groups</h4>
+                  {sec.classes.map((cls) => (
+                    <NumberInput
+                      key={cls.id}
+                      label={cls.name}
+                      value={values.classCounts[cls.id] ?? 0}
+                      onChange={(v) => setCustomClass(sec.id, cls.id, v)}
+                    />
+                  ))}
+                </>
+              )}
+
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-stone-700 mb-1">Notes</label>
+                <textarea
+                  value={values.notes}
+                  onChange={(e) => setCustom(sec.id, { notes: e.target.value })}
+                  className="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm text-stone-900"
+                  rows={2}
+                  placeholder="Anything worth remembering about this month..."
+                />
+              </div>
+            </SectionCard>
+          );
+        })}
 
       {/* CROPS SECTION */}
       <SectionCard title="🌱 Crops Section" color="bg-teal-700">

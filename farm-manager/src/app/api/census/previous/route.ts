@@ -24,8 +24,15 @@ export async function GET(req: NextRequest) {
         goatSection: true,
         layerSection: true,
         broilerSection: true,
+        customEntries: { select: { sectionId: true, closingStock: true } },
       },
     });
+
+    // Types the farmer added carry forward the same way the built-in ones do.
+    const customOpening: Record<string, number> = {};
+    for (const entry of previous?.customEntries ?? []) {
+      customOpening[entry.sectionId] = entry.closingStock;
+    }
 
     return NextResponse.json({
       previous,
@@ -35,6 +42,7 @@ export async function GET(req: NextRequest) {
         goatOpening: previous?.goatSection?.closingStock ?? 0,
         layerOpening: previous?.layerSection?.closingStock ?? 0,
         broilerOpening: previous?.broilerSection?.closingStock ?? 0,
+        customOpening,
       },
     });
   } catch {

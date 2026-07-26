@@ -29,6 +29,12 @@ export default async function CensusDetailPage({ params }: { params: Promise<{ i
       workshopItems: true,
       expenses: true,
       submittedBy: { select: { name: true } },
+      customEntries: {
+        include: {
+          section: true,
+          classCounts: { include: { class: true } },
+        },
+      },
     },
   });
 
@@ -78,13 +84,17 @@ export default async function CensusDetailPage({ params }: { params: Promise<{ i
   const totalDeaths =
     (census.beefSection?.deaths ?? 0) + (census.dairySection?.deaths ?? 0) +
     (census.goatSection?.deaths ?? 0) + (census.layerSection?.mortalities ?? 0) +
-    (census.broilerSection?.deaths ?? 0);
+    (census.broilerSection?.deaths ?? 0) +
+    census.customEntries.reduce((sum, e) => sum + e.deaths, 0);
   const herdParts: string[] = [];
   if (census.beefSection) herdParts.push(`${census.beefSection.closingStock} beef cattle`);
   if (census.dairySection) herdParts.push(`${census.dairySection.closingStock} dairy cattle`);
   if (census.goatSection) herdParts.push(`${census.goatSection.closingStock} goats`);
   if (census.layerSection) herdParts.push(`${census.layerSection.closingStock.toLocaleString()} layers`);
   if (census.broilerSection?.closingStock) herdParts.push(`${census.broilerSection.closingStock.toLocaleString()} broilers`);
+  for (const entry of census.customEntries) {
+    herdParts.push(`${entry.closingStock.toLocaleString()} ${entry.section.name.toLowerCase()}`);
+  }
 
   let summary = `At the end of ${MONTHS[census.month]} ${census.year}, ${census.farm.name} was keeping ${herdParts.join(", ") || "no recorded livestock"}. `;
   summary += totalDeaths > 0
@@ -116,6 +126,7 @@ export default async function CensusDetailPage({ params }: { params: Promise<{ i
               census.layerSection ? `🐔 Layers: ${census.layerSection.closingStock} (laying ${census.layerSection.averageLayingPct}%)` : "",
               census.broilerSection ? `🐥 Broilers: ${census.broilerSection.closingStock}` : "",
               census.dairySection?.totalMilkYield ? `🥛 Milk this month: ${census.dairySection.totalMilkYield.toLocaleString()} litres` : "",
+              ...census.customEntries.map((e) => `${e.section.icon} ${e.section.name}: ${e.closingStock}`),
             ].filter(Boolean).join("\n")}
           />
           <ShareLinkButton censusId={census.id} />
@@ -319,6 +330,36 @@ export default async function CensusDetailPage({ params }: { params: Promise<{ i
           </ReportSection>
         )}
 
+        {/* Types the farmer added themselves */}
+        {census.customEntries.map((entry) => (
+          <ReportSection
+            key={entry.id}
+            title={`${entry.section.icon} ${entry.section.name}`}
+            color="border-stone-500"
+          >
+            <StockTable
+              rows={[
+                ["Opening Stock", entry.openingStock],
+                ["Births", entry.births],
+                ["Moved In", entry.movedIn],
+                ["Moved Out", entry.movedOut],
+                ["Sold", entry.sold],
+                ["Slaughtered", entry.slaughtered],
+                ["Deaths", entry.deaths],
+              ]}
+              closing={entry.closingStock}
+            />
+            {entry.classCounts.length > 0 && (
+              <ClassTable
+                label="Groups"
+                rows={entry.classCounts.map((c) => [c.class.name, c.count] as [string, number])}
+                total={entry.classCounts.reduce((sum, c) => sum + c.count, 0)}
+              />
+            )}
+            {entry.notes && <Notes text={entry.notes} />}
+          </ReportSection>
+        ))}
+
         {/* Crops Section */}
         {census.cropActivities.length > 0 && (
           <ReportSection title="Crops Section" color="border-teal-600">
@@ -411,10 +452,10 @@ function StockTable({ rows, closing }: { rows: [string, number][]; closing: numb
   );
 }
 
-function ClassTable({ rows, total }: { rows: [string, number][]; total: number }) {
+function ClassTable({ rows, total, label = "Animal Classes" }: { rows: [string, number][]; total: number; label?: string }) {
   return (
     <div className="mt-4">
-      <p className="font-medium text-gray-900 text-sm mb-1">Animal Classes</p>
+      <p className="font-medium text-gray-900 text-sm mb-1">{label}</p>
       <table className="w-full text-sm">
         <tbody>
           {rows.map(([label, value]) => (
