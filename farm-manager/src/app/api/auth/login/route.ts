@@ -10,7 +10,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Email and password are required" }, { status: 400 });
   }
 
-  const user = await prisma.user.findUnique({ where: { email } });
+  // Phone keyboards capitalise the first letter, so "Joyce@gmail.com" and
+  // "joyce@gmail.com" must both find the same account.
+  const user = await prisma.user.findFirst({
+    where: { email: { equals: String(email).trim(), mode: "insensitive" } },
+  });
   if (!user) {
     return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
   }

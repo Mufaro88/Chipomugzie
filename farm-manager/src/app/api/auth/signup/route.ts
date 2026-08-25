@@ -18,7 +18,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Name, email and password are required" }, { status: 400 });
   }
 
-  const existing = await prisma.user.findUnique({ where: { email } });
+  // Store one tidy form of the address so a stray space or a capital letter
+  // from a phone keyboard can never lock somebody out later.
+  const cleanEmail = String(email).trim().toLowerCase();
+
+  const existing = await prisma.user.findFirst({
+    where: { email: { equals: cleanEmail, mode: "insensitive" } },
+  });
   if (existing) {
     return NextResponse.json({ error: "Email already registered" }, { status: 400 });
   }
@@ -35,7 +41,7 @@ export async function POST(req: NextRequest) {
     .split(",")
     .map((e) => e.trim().toLowerCase())
     .filter(Boolean);
-  if (allowlist.length > 0 && !joiningFarm && !allowlist.includes(String(email).toLowerCase())) {
+  if (allowlist.length > 0 && !joiningFarm && !allowlist.includes(cleanEmail)) {
     return NextResponse.json(
       { error: "Sign-ups are limited to invited testers right now. Ask the founder for access." },
       { status: 403 }
@@ -56,7 +62,7 @@ export async function POST(req: NextRequest) {
   const user = await prisma.user.create({
     data: {
       name,
-      email,
+      email: cleanEmail,
       passwordHash,
       phone,
       role: joiningFarm ? joiningFarm.role : "owner",
