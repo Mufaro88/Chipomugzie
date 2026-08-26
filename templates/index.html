@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkinSaver - Find Cheap Skincare Products</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>SkinSaver</h1>
+            <p class="tagline">Find the best skincare deals across the web</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="search-section">
+            <form id="search-form">
+                <div class="search-bar">
+                    <input type="text" id="query" placeholder="Search for skincare products (e.g. moisturizer, sunscreen, serum...)" required>
+                    <button type="submit" id="search-btn">Search</button>
+                </div>
+                <div class="filters">
+                    <label>
+                        Max Price: $
+                        <input type="number" id="max-price" min="1" step="1" placeholder="Any">
+                    </label>
+                    <label>
+                        Sort by:
+                        <select id="sort">
+                            <option value="price">Price (Low to High)</option>
+                            <option value="name">Name (A-Z)</option>
+                        </select>
+                    </label>
+                </div>
+            </form>
+        </section>
+
+        <section id="status" class="status hidden"></section>
+
+        <section id="results" class="results-grid"></section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>SkinSaver &mdash; Prices scraped in real-time. Results may vary.</p>
+        </div>
+    </footer>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
